@@ -218,6 +218,13 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
 .qc details[open] .chev{transform:rotate(90deg)}
 .qc .body{padding:0 14px 12px}
 .qc .body .tbl-wrap{max-height:260px;overflow:auto}
+.imgm{position:fixed;inset:0;z-index:80;background:rgba(8,14,26,.72);display:none;align-items:center;justify-content:center;padding:16px}
+.imgm.on{display:flex}
+.imgm-in{background:var(--surface);border-radius:20px;padding:14px;max-width:560px;width:100%;max-height:92vh;display:flex;flex-direction:column;gap:10px}
+.imgm-h{display:flex;align-items:center;justify-content:space-between}
+.imgm img{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);overflow:auto;min-height:0;object-fit:contain;-webkit-touch-callout:default}
+.imgm-hint{margin:0;font-size:12.5px;color:var(--ink-2);text-align:center}
+.btn.primary{justify-content:center;background:var(--navy);color:#fff;border-color:var(--navy);height:42px}
 .share{position:fixed;left:-10000px;top:0;width:720px;background:#fff;color:#0F1B2D;font-family:"Be Vietnam Pro",system-ui,sans-serif}
 @media print{
   .topbar,.filters,.summary,.phone-wrap,.tools,.pager,#themeBtn,.share{display:none!important}
@@ -363,6 +370,14 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
 
 <div class="tip" id="tip" role="tooltip"></div>
 <div id="shareCard" class="share" aria-hidden="true"></div>
+<div id="imgModal" class="imgm" role="dialog" aria-label="Ảnh báo cáo">
+  <div class="imgm-in">
+    <div class="imgm-h"><b>Ảnh báo cáo</b><button class="iconbtn" id="imgClose" aria-label="Đóng">✕</button></div>
+    <img id="imgPrev" alt="Ảnh báo cáo ngày">
+    <p class="imgm-hint">Nhấn giữ vào ảnh → <b>Lưu vào Ảnh</b>. Hoặc bấm Chia sẻ để gửi Zalo / lưu.</p>
+    <button class="btn primary" id="imgShare"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Chia sẻ / Lưu ảnh</span></button>
+  </div>
+</div>
 
 <script src="data.js"></script>
 <script>
@@ -756,11 +771,11 @@ function buildShareCard(){
     if(!d.past)sv+=`<rect x="${x}" y="${yb-3}" width="${w}" height="3" rx="1.5" fill="#E3E7EF"/>`;
     const dn=i+1;if(dn===1||dn%5===0||i===nd-1&&dn%5>1)sv+=`<text x="${dn===1?0:cx(i)}" y="${TOT-4}" font-size="10" text-anchor="${dn===1?'start':'middle'}" fill="#7A8599">${String(dn).padStart(2,'0')}/${String(mo+1).padStart(2,'0')}</text>`;});
   sv+=`<line x1="0" x2="${W}" y1="${yb+0.5}" y2="${yb+0.5}" stroke="#C8CEDA"/></svg>`;
-  const box=(l,v,c)=>`<div style="flex:1;background:#F4F6FA;border-radius:14px;padding:12px 14px"><div style="font-size:12px;color:#4A5568">${l}</div><div style="font-size:26px;font-weight:800;color:${c||'#0F1B2D'};letter-spacing:-.02em">${v}</div></div>`;
+  const box=(l,v,c)=>`<div style="flex:1;background:#F4F6FA;border-radius:14px;padding:12px 14px"><div style="font-size:12px;color:#4A5568">${l}</div><div style="font-size:26px;font-weight:800;color:${c||'#0F1B2D'}">${v}</div></div>`;
   $('shareCard').innerHTML=`
    <div style="background:linear-gradient(125deg,#0E244A,#163665 55%,#5a1d3a);color:#fff;padding:22px 32px 20px;display:flex;align-items:center;gap:16px">
      <div style="background:#fff;border-radius:12px;padding:6px 12px;display:flex;align-items:center;gap:10px"><img src="${LOGO_PVI}" style="height:30px"><span style="color:#9AA3B2">×</span><img src="${LOGO_VST}" style="height:24px"></div>
-     <div style="flex:1;text-align:right"><div style="font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.06em">Báo cáo ngày</div><div style="font-size:22px;font-weight:800">${ddmmyyyy(maxDate)}</div></div>
+     <div style="flex:1;text-align:right"><div style="font-size:12px;opacity:.75;text-transform:uppercase">Báo cáo ngày</div><div style="font-size:22px;font-weight:800">${ddmmyyyy(maxDate)}</div></div>
    </div>
    <div style="padding:22px 32px 26px">
      <div style="font-size:20px;font-weight:800;color:#163665">Bảo hiểm Một đổi một · iPhone tại Viettel Store</div>
@@ -774,15 +789,38 @@ function buildShareCard(){
 }
 let h2cP=null;
 function loadH2C(){if(window.html2canvas)return Promise.resolve();if(!h2cP)h2cP=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s);});return h2cP;}
+const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let shareFile=null,shareUrl=null;
+function closeImg(){$('imgModal').classList.remove('on');}
+$('imgClose').addEventListener('click',closeImg);
+$('imgModal').addEventListener('click',e=>{if(e.target.id==='imgModal')closeImg();});
+$('imgShare').addEventListener('click',async()=>{
+  // fresh tap = valid user gesture for the iOS share sheet
+  if(shareFile&&navigator.canShare&&navigator.canShare({files:[shareFile]})){
+    try{await navigator.share({files:[shareFile],title:'BH Một đổi một – Viettel Store '+ddmmyyyy(maxDate)});}catch(e){}
+  }else{window.open(shareUrl,'_blank');}
+});
 $('btnPng').addEventListener('click',async()=>{
-  const b=$('btnPng');b.querySelector('span').textContent='Đang tạo…';
+  const b=$('btnPng');const sp=b.querySelector('span');sp.textContent='Đang tạo…';
   try{
     await loadH2C();buildShareCard();
     const cv=await html2canvas($('shareCard'),{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,x:0,y:0,scrollX:0,scrollY:0,windowWidth:720,
       onclone:d=>{const el=d.getElementById('shareCard');el.style.left='0';}});
-    const a=document.createElement('a');a.download='BH-MotDoiMot-VST-'+maxDate+'.png';a.href=cv.toDataURL('image/png');document.body.appendChild(a);a.click();a.remove();
-    b.querySelector('span').textContent='Tải ảnh';flash(b,'Đã tải ảnh');
-  }catch(e){b.querySelector('span').textContent='Tải ảnh';alert('Không tạo được ảnh (cần kết nối Internet). Có thể dùng nút In / PDF.');}
+    const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+    const name='BH-MotDoiMot-VST-'+maxDate+'.png';
+    if(shareUrl)URL.revokeObjectURL(shareUrl);
+    shareUrl=URL.createObjectURL(blob);shareFile=new File([blob],name,{type:'image/png'});
+    sp.textContent='Tải ảnh';
+    if(isMobile){
+      // iPhone/Android: show the image -> long-press to save, or share sheet (Zalo, Lưu hình ảnh…)
+      $('imgPrev').src=shareUrl;
+      $('imgShare').style.display=(navigator.canShare&&navigator.canShare({files:[shareFile]}))?'':'none';
+      $('imgModal').classList.add('on');
+    }else{
+      const a=document.createElement('a');a.download=name;a.href=shareUrl;document.body.appendChild(a);a.click();a.remove();
+      flash(b,'Đã tải ảnh');
+    }
+  }catch(e){sp.textContent='Tải ảnh';alert('Không tạo được ảnh (cần kết nối Internet). Có thể dùng nút In / PDF.');}
 });
 
 /* ============ main ============ */

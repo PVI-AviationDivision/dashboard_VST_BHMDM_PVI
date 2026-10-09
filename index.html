@@ -334,11 +334,6 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
   </section>
 
   <section class="card panel" style="margin-top:16px">
-    <div class="panel-h"><div><h2>Kiểm soát dữ liệu</h2><p>Tự động rà soát trên toàn bộ dữ liệu đã nạp · bấm từng mục để xem chi tiết</p></div><div class="sp"></div><div id="qcBadge"></div></div>
-    <div class="qc" id="qcBox"></div>
-  </section>
-
-  <section class="card panel" style="margin-top:16px">
     <div class="panel-h"><div><h2>Tổng hợp theo tháng</h2><p>Toàn bộ dữ liệu · đơn hủy tính theo ngày SĐBS</p></div></div>
     <div class="tbl-wrap"><table id="tblMonth"></table></div>
   </section>
@@ -704,53 +699,17 @@ function renderRisk(){
     r.addEventListener('mousemove',moveTip);r.addEventListener('mouseleave',()=>{r.setAttribute('fill','transparent');hideTip();});});
 }
 
-/* ============ data quality checks ============ */
-function qcChecks(){
-  const purchase=r=>r.bd?iso(new Date(toD(r.bd).getTime()-30*DAY)):null;
-  const regLag=r=>{const p=purchase(r);return p?Math.round((toD(r.ngay)-toD(p))/DAY):null;};
-  const byK=new Map();G.forEach(r=>{if(!byK.has(r.kid))byK.set(r.kid,{kh:r.kh,n:0,h:0,list:[]});const o=byK.get(r.kid);o.n++;if(r.cancel)o.h++;o.list.push(r);});
-  const P=r=>esc(r.don.split('/').slice(-1)[0]);
-  const tbl=(head,rows)=>`<div class="tbl-wrap"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
-  const C=[];
-  const lui=D.rows.filter(r=>r.lui);
-  C.push({t:'Đơn nhập lùi ngày',d:'Đơn mới xuất hiện ở ngày đã có trong báo cáo trước đó',n:lui.length,
-    body:()=>tbl(['Số đơn','Ngày CT','Lần đầu thấy trong file ngày','Loại'],lui.map(r=>`<tr><td class="mono">${esc(r.don.split('/').slice(-2).join('/'))}</td><td>${ddmmyyyy(r.ngay)}</td><td>${ddmmyyyy(r.nap)}</td><td>${r.loai==='H'?'SĐBS hủy':'Đơn gốc'}</td></tr>`))});
-  const fast=cancels.filter(c=>c.lag!=null&&c.lag<=2);
-  C.push({t:'Hủy nhanh (≤ 2 ngày sau khi cấp)',d:'Có thể do nhập sai, khách đổi ý ngay hoặc đơn thử',n:fast.length,
-    body:()=>tbl(['Đơn gốc','Ngày cấp','Ngày hủy','Sau','KH'],fast.map(c=>`<tr><td class="mono">${esc(c.goc.split('/').pop())}</td><td>${ddmmyyyy(c.orig.ngay)}</td><td>${ddmmyyyy(c.ngay)}</td><td>${c.lag} ngày</td><td>${esc(c.kh)}</td></tr>`))});
-  const many=[...byK.values()].filter(o=>o.n>=3).sort((a,b)=>b.n-a.n);
-  C.push({t:'Một khách mua từ 3 đơn trở lên',d:'Cùng tên khách hàng (đã ẩn) đứng tên nhiều GCNBH',n:many.length,
-    body:()=>tbl(['Khách hàng','Số đơn','Đã hủy','Các đơn'],many.map(o=>`<tr><td>${esc(o.kh)}</td><td>${o.n}</td><td>${o.h}</td><td class="mono" style="white-space:normal">${o.list.map(P).join(', ')}</td></tr>`))});
-  const orphan=cancels.filter(c=>!c.orig);
-  C.push({t:'SĐBS hủy không có đơn gốc',d:'Không tìm thấy đơn gốc tương ứng trong dữ liệu đã nạp',n:orphan.length,
-    body:()=>tbl(['Số SĐBS','Ngày'],orphan.map(c=>`<tr><td class="mono">${esc(c.don)}</td><td>${ddmmyyyy(c.ngay)}</td></tr>`))});
-  const late=G.filter(r=>{const l=regLag(r);return l!=null&&l>7;});
-  C.push({t:'Đăng ký quá 7 ngày sau ngày mua',d:'Ngày mua ước tính = Ngày bắt đầu − 30 ngày; điều kiện: đăng ký trong 07 ngày',n:late.length,
-    body:()=>tbl(['Số đơn','Ngày CT','Ngày mua (ước tính)','Trễ'],late.map(r=>`<tr><td class="mono">${P(r)}</td><td>${ddmmyyyy(r.ngay)}</td><td>${ddmmyyyy(purchase(r))}</td><td>${regLag(r)} ngày</td></tr>`))});
-  const odd=G.filter(r=>!(r.stbh>0&&r.stbh<=65e6)||r.phi!==700000);
-  C.push({t:'Số tiền BH / phí bất thường',d:'Số tiền BH bằng 0 hoặc trên 65 triệu, hoặc phí khác 700.000 đ',n:odd.length,
-    body:()=>tbl(['Số đơn','Ngày CT','Số tiền BH','Phí'],odd.map(r=>`<tr><td class="mono">${P(r)}</td><td>${ddmmyyyy(r.ngay)}</td><td class="r">${fmt(r.stbh)}</td><td class="r">${fmt(r.phi)}</td></tr>`))});
-  return C;
-}
-function renderQC(){
-  const C=qcChecks();const bad=C.filter(c=>c.n>0).length;
-  $('qcBadge').innerHTML=bad?`<span class="badge warn">${bad} mục cần kiểm tra</span>`:'<span class="badge good">Dữ liệu ổn</span>';
-  $('qcBox').innerHTML=C.map(c=>`<details class="${c.n?'wn':'ok'}"><summary><span class="ico">${c.n?'!':'✓'}</span><div><div class="t1">${c.t}</div><div class="t2">${c.d}</div></div><span class="cnt num">${c.n}</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg></summary><div class="body">${c.n?c.body():'<div class="t2">Không có trường hợp nào.</div>'}</div></details>`).join('');
-  return bad;
-}
 
 /* ============ summary & export ============ */
 function summaryText(){
   const all=metrics(minDate,maxDate);const R=riskStats();
   const dG=G.filter(r=>r.ngay===maxDate).length,dH=cancels.filter(c=>c.ngay===maxDate).length;
-  const bad=qcChecks().filter(c=>c.n>0);
   const lines=[
     `BH Một đổi một – Viettel Store × BH PVI`,
     `Ngày ${ddmmyyyy(maxDate)}: +${fmt(dG)} đơn ghi nhận, ${fmt(dH)} đơn hủy.`,
     `Lũy kế ${ddmmyyyy(minDate)}–${ddmmyyyy(maxDate)}: ${fmt(all.nG)} ghi nhận, ${fmt(all.nH)} hủy, ${fmt(all.net)} đơn thực tế (tỷ lệ hủy ${pct(all.nH/all.nG)}).`,
     `Phí BH thực tế: ${fmt(all.phiNet)} đ.`,
     `Hiệu lực: ${fmt(R.act)} đang hiệu lực, ${fmt(R.wait)} chờ hiệu lực.`];
-  if(bad.length)lines.push(`Lưu ý dữ liệu: ${bad.map(c=>c.t.toLowerCase()+' ('+c.n+')').join('; ')}.`);
   return lines;
 }
 function renderSummary(){
@@ -768,14 +727,35 @@ const LOGO_PVI='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK0AAABACAYAAABodf
 function buildShareCard(){
   const all=metrics(minDate,maxDate);const R=riskStats();
   const dG=G.filter(r=>r.ngay===maxDate).length,dH=cancels.filter(c=>c.ngay===maxDate).length;
-  // last 14 days mini bars
-  const days=[];for(let i=13;i>=0;i--){const k=iso(new Date(toD(maxDate).getTime()-i*DAY));days.push({k,g:G.filter(r=>r.ngay===k).length,h:cancels.filter(c=>c.ngay===k).length});}
-  const mx=Math.max(1,...days.map(d=>d.g)),mh=Math.max(0,...days.map(d=>d.h));const W=656,Hh=110,Hl=mh?40:0,bw=W/14;
-  let sv=`<svg width="${W}" height="${Hh+Hl+22}" xmlns="http://www.w3.org/2000/svg">`;
-  days.forEach((d,i)=>{const x=i*bw+bw*0.2,w=bw*0.6;if(d.g){const h=d.g/mx*(Hh-16);sv+=`<rect x="${x}" y="${Hh-h}" width="${w}" height="${h}" rx="3" fill="#2F5FC4"/><text x="${x+w/2}" y="${Hh-h-4}" font-size="11" text-anchor="middle" fill="#4A5568" font-family="sans-serif">${d.g}</text>`;}
-    if(d.h){const h=d.h/mh*Hl;sv+=`<rect x="${x}" y="${Hh+1}" width="${w}" height="${h}" rx="3" fill="#E41E26"/>`;}
-    sv+=`<text x="${x+w/2}" y="${Hh+Hl+16}" font-size="10" text-anchor="middle" fill="#7A8599" font-family="sans-serif">${ddmm(d.k)}</text>`;});
-  sv+=`<line x1="0" x2="${W}" y1="${Hh+0.5}" y2="${Hh+0.5}" stroke="#C8CEDA"/></svg>`;
+  // current month: daily bars + cumulative net line (two panels, shared x-axis)
+  const md=toD(maxDate),y=md.getFullYear(),mo=md.getMonth(),nd=new Date(y,mo+1,0).getDate();
+  const m0=iso(new Date(y,mo,1));
+  let acc=G.filter(r=>r.ngay<m0).length-cancels.filter(c=>c.ngay<m0).length;const startAcc=acc;
+  const days=[];for(let i=1;i<=nd;i++){const k=iso(new Date(y,mo,i));const g=G.filter(r=>r.ngay===k).length,h=cancels.filter(c=>c.ngay===k).length;const past=k<=maxDate;if(past)acc+=g-h;days.push({k,g,h,past,acc});}
+  const mG=days.reduce((a,d)=>a+d.g,0),mH=days.reduce((a,d)=>a+d.h,0);
+  const W=656,bw=W/nd,LH=96,BH=104,HL=Math.max(0,...days.map(d=>d.h))?34:0,gap=30,top=40;
+  const mx=Math.max(1,...days.map(d=>d.g)),mh=Math.max(1,...days.map(d=>d.h));
+  const past=days.filter(d=>d.past);const aMin=0,aMax=Math.max(1,...past.map(d=>d.acc));
+  const ly=v=>top+LH-(v-aMin)/(aMax-aMin||1)*(LH-6);const cx=i=>i*bw+bw/2;
+  const yb=top+LH+gap+BH; // baseline of bars
+  const TOT=yb+HL+22;
+  let sv=`<svg width="${W}" height="${TOT}" xmlns="http://www.w3.org/2000/svg" font-family="Be Vietnam Pro,sans-serif">`;
+  // cumulative line
+  sv+=`<text x="0" y="10" font-size="11" fill="#4A5568" font-weight="600">Lũy kế đơn thực tế (toàn chương trình)<tspan font-weight="400" fill="#7A8599">${startAcc>0?' · đầu tháng: '+fmt(startAcc)+' đơn':''}</tspan></text>`;
+  sv+=`<line x1="0" x2="${W}" y1="${top+LH}" y2="${top+LH}" stroke="#E3E7EF"/>`;
+  const pts=[`${0},${ly(startAcc)}`].concat(past.map((d,i)=>`${cx(i)},${ly(d.acc)}`));
+  sv+=`<path d="M${pts.join('L')}L${cx(past.length-1)},${top+LH}L0,${top+LH}Z" fill="#163665" fill-opacity=".08"/><path d="M${pts.join('L')}" fill="none" stroke="#163665" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const L=past[past.length-1],li=past.length-1;
+  sv+=`<circle cx="${cx(li)}" cy="${ly(L.acc)}" r="5" fill="#163665" stroke="#fff" stroke-width="2"/><text x="${Math.min(cx(li),W-4)}" y="${ly(L.acc)-10}" font-size="14" font-weight="800" fill="#163665" text-anchor="${cx(li)>W-60?'end':'middle'}">${fmt(L.acc)}</text>`;
+  
+  // daily bars
+  sv+=`<text x="0" y="${top+LH+gap-8}" font-size="11" fill="#4A5568" font-weight="600">Theo ngày · ghi nhận (xanh) và hủy (đỏ)</text>`;
+  days.forEach((d,i)=>{const w=bw*0.62,x=cx(i)-w/2;
+    if(d.g){const h=d.g/mx*(BH-16);sv+=`<rect x="${x}" y="${yb-h}" width="${w}" height="${h}" rx="2.5" fill="#2F5FC4"/><text x="${cx(i)}" y="${yb-h-4}" font-size="9.5" text-anchor="middle" fill="#4A5568">${d.g}</text>`;}
+    if(d.h){const h=Math.max(3,d.h/mh*HL);sv+=`<rect x="${x}" y="${yb+1}" width="${w}" height="${h}" rx="2.5" fill="#E41E26"/>`;}
+    if(!d.past)sv+=`<rect x="${x}" y="${yb-3}" width="${w}" height="3" rx="1.5" fill="#E3E7EF"/>`;
+    const dn=i+1;if(dn===1||dn%5===0||i===nd-1&&dn%5>1)sv+=`<text x="${dn===1?0:cx(i)}" y="${TOT-4}" font-size="10" text-anchor="${dn===1?'start':'middle'}" fill="#7A8599">${String(dn).padStart(2,'0')}/${String(mo+1).padStart(2,'0')}</text>`;});
+  sv+=`<line x1="0" x2="${W}" y1="${yb+0.5}" y2="${yb+0.5}" stroke="#C8CEDA"/></svg>`;
   const box=(l,v,c)=>`<div style="flex:1;background:#F4F6FA;border-radius:14px;padding:12px 14px"><div style="font-size:12px;color:#4A5568">${l}</div><div style="font-size:26px;font-weight:800;color:${c||'#0F1B2D'};letter-spacing:-.02em">${v}</div></div>`;
   $('shareCard').innerHTML=`
    <div style="background:linear-gradient(125deg,#0E244A,#163665 55%,#5a1d3a);color:#fff;padding:22px 32px 20px;display:flex;align-items:center;gap:16px">
@@ -787,7 +767,7 @@ function buildShareCard(){
      <div style="font-size:13px;color:#4A5568;margin-top:2px">Trong ngày: <b style="color:#2F5FC4">+${fmt(dG)} đơn ghi nhận</b> · <b style="color:#E41E26">${fmt(dH)} đơn hủy</b></div>
      <div style="display:flex;gap:10px;margin-top:16px">${box('Đơn ghi nhận',fmt(all.nG),'#2F5FC4')}${box('Đơn đã hủy',fmt(all.nH),'#E41E26')}${box('Đơn thực tế',fmt(all.net),'#163665')}</div>
      <div style="display:flex;gap:10px;margin-top:10px">${box('Phí BH thực tế',money(all.phiNet)+' đ')}${box('Tỷ lệ hủy',pct(all.nH/all.nG))}${box('Đang / chờ hiệu lực',fmt(R.act)+' / '+fmt(R.wait))}</div>
-     <div style="font-size:12.5px;font-weight:600;color:#4A5568;margin:18px 0 6px">14 ngày gần nhất · ghi nhận (xanh) và hủy (đỏ)</div>
+     <div style="display:flex;align-items:baseline;gap:10px;margin:20px 0 10px"><div style="font-size:15px;font-weight:800;color:#163665">Tháng ${mo+1}/${y}</div><div style="font-size:12.5px;color:#4A5568">${fmt(mG)} ghi nhận · ${fmt(mH)} hủy · <b style="color:#163665">${fmt(mG-mH)} thực tế</b></div></div>
      ${sv}
      <div style="font-size:11px;color:#7A8599;margin-top:8px">Lũy kế ${ddmmyyyy(minDate)} – ${ddmmyyyy(maxDate)} · Đơn có hậu tố /E01 SĐBS được tính là đơn hủy · Tên khách hàng đã được ẩn</div>
    </div>`;
@@ -808,7 +788,7 @@ $('btnPng').addEventListener('click',async()=>{
 /* ============ main ============ */
 function renderAll(){
   const m=metrics(S.from,S.to);
-  renderHero();renderSummary();renderKpis(m);renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderQC();renderMonth();renderList();
+  renderHero();renderSummary();renderKpis(m);renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderMonth();renderList();
 }
 $('footSrc').textContent='Nguồn: '+(D.sourceFiles||[]).join(', ')+' · '+fmt(D.rows.length)+' dòng';
 renderAll();

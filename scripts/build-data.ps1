@@ -138,7 +138,7 @@ $want = [ordered]@{
 # reports live in <Root>\BaoCao (files left in the root folder are still read)
 $dataPath = Join-Path $Root $DataDir
 if (-not (Test-Path $dataPath)) { New-Item -ItemType Directory -Path $dataPath | Out-Null }
-$files = @(Get-ChildItem -Path $dataPath, $Root -Filter $Pattern -File | Where-Object { $_.Name -notlike '~$*' } | Sort-Object LastWriteTime)
+$files = @(Get-ChildItem -Path $dataPath, $Root -Filter $Pattern -File | Where-Object { $_.Name -notlike '~$*' } | Sort-Object @{ Expression = { $m = [regex]::Match($_.Name, '\d{4}-\d{2}-\d{2}'); if ($m.Success) { $m.Value } else { $_.LastWriteTime.ToString('yyyy-MM-dd') } } }, LastWriteTime)
 if ($files.Count -eq 0) { throw "Khong tim thay file $Pattern trong thu muc $DataDir" }
 
 # reads column $k of current row $a using header map $map (dynamic scope)
@@ -146,7 +146,13 @@ function G($k) { $i = $map[$k]; if ($i -ge 0 -and $i -lt $a.Length) { return [st
 
 $byPolicy = [ordered]@{}
 $sourceFiles = @()
+$prevMax = ''   # latest Ngay CT already reported by earlier files
+$prevMin = ''   # earliest Ngay CT covered by earlier files
 foreach ($f in $files) {
+  $fm = [regex]::Match($f.Name, '\d{4}-\d{2}-\d{2}')
+  $fileDate = $(if ($fm.Success) { $fm.Value } else { $f.LastWriteTime.ToString('yyyy-MM-dd') })
+  $fileMax = $prevMax
+  $fileMin = $prevMin
   Write-Host ("  - Doc file: " + $f.Name)
   $rows = Read-XlsxRows $f.FullName
   $hdrIdx = -1; $map = @{}
@@ -185,12 +191,27 @@ foreach ($f in $files) {
       kt    = To-IsoDate (G 'kt')
       cb    = (G 'cb').Trim()
       tt    = (G 'tt').Trim()
+      nap   = $fileDate
+      lui   = $false
     }
+    if ($byPolicy.Contains($sodon)) {
+      # keep when the policy was first seen
+      $rec.nap = $byPolicy[$sodon].nap
+      $rec.lui = $byPolicy[$sodon].lui
+    } elseif ($prevMax -ne '' -and $rec.ngay -and $rec.ngay -lt $prevMax -and $rec.ngay -ge $prevMin) {
+      # new policy dated inside a period already reported -> back-dated entry
+      # (dates before the earliest reported day just mean the export range was widened)
+      $rec.lui = $true
+    }
+    if ($rec.ngay -and $rec.ngay -gt $fileMax) { $fileMax = $rec.ngay }
+    if ($rec.ngay -and ($fileMin -eq '' -or $rec.ngay -lt $fileMin)) { $fileMin = $rec.ngay }
     $byPolicy[$sodon] = $rec
     $cnt++
   }
   Write-Host ("    -> " + $cnt + " dong")
   $sourceFiles += $f.Name
+  $prevMax = $fileMax
+  $prevMin = $fileMin
 }
 
 $list = @($byPolicy.Values)

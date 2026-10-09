@@ -24,7 +24,7 @@ if not exist ".git" (
   echo  Thu muc chua ket noi GitHub - hay chay setup-github.bat truoc.
   goto done
 )
-git add index.html data.js assets scripts update.bat setup-github.bat .gitignore README.md BaoCao/DOC-TRUOC.txt
+git add index.html data.js manifest.webmanifest assets scripts update.bat setup-github.bat .gitignore README.md BaoCao/DOC-TRUOC.txt
 git commit -m "Cap nhat so lieu %date% %time:~0,5%" >nul
 if errorlevel 1 echo  Khong co thay doi moi de commit.
 git push

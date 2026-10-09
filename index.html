@@ -2,10 +2,17 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Một đổi một · Viettel Store</title>
 <meta name="description" content="Dashboard theo dõi hiệu quả chương trình Bảo hiểm Một đổi một cho iPhone tại Viettel Store × BH PVI">
-<link rel="icon" href="assets/logo-pvi.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BH 1 đổi 1">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#163665">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -43,7 +50,7 @@ body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-u
 @media (max-width:600px){.wrap{padding:0 16px}}
 
 /* ---------- top bar ---------- */
-.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;padding-top:env(safe-area-inset-top);z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
 .topbar .wrap{display:flex;align-items:center;gap:14px;height:64px}
 .brands{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:6px 12px;box-shadow:0 0 0 1px rgba(15,27,45,.06)}
 .brands img{display:block;height:30px;width:auto}

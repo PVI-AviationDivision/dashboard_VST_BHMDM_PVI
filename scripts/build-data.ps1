@@ -8,7 +8,8 @@
 # ------------------------------------------------------------------
 param(
   [string]$Root = (Split-Path -Parent $PSScriptRoot),
-  [string]$Pattern = 'bhkh-*.xlsx'
+  [string]$Pattern = 'bhkh-*.xlsx',
+  [string]$DataDir = 'BaoCao'
 )
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression
@@ -134,8 +135,11 @@ $want = [ordered]@{
   cb = 'cb khai thac'; file = 'sl file dinh kem'; tt = 'trang thai'
 }
 
-$files = Get-ChildItem -Path $Root -Filter $Pattern -File | Where-Object { $_.Name -notlike '~$*' } | Sort-Object LastWriteTime
-if ($files.Count -eq 0) { throw "Khong tim thay file $Pattern trong $Root" }
+# reports live in <Root>\BaoCao (files left in the root folder are still read)
+$dataPath = Join-Path $Root $DataDir
+if (-not (Test-Path $dataPath)) { New-Item -ItemType Directory -Path $dataPath | Out-Null }
+$files = @(Get-ChildItem -Path $dataPath, $Root -Filter $Pattern -File | Where-Object { $_.Name -notlike '~$*' } | Sort-Object LastWriteTime)
+if ($files.Count -eq 0) { throw "Khong tim thay file $Pattern trong thu muc $DataDir" }
 
 # reads column $k of current row $a using header map $map (dynamic scope)
 function G($k) { $i = $map[$k]; if ($i -ge 0 -and $i -lt $a.Length) { return [string]$a[$i] } else { return '' } }

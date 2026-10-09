@@ -1,0 +1,4 @@
+Bo file bao cao xuat tu he thong (bhkh-YYYY-MM-DD.xlsx) vao thu muc nay,
+roi bam update.bat o thu muc ben ngoai.
+
+File Excel trong thu muc nay KHONG duoc day len GitHub.

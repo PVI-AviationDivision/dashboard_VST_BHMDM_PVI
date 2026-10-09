@@ -5,7 +5,7 @@ cd /d "%~dp0"
 echo.
 echo  ==== Cap nhat dashboard BH Mot doi mot - Viettel Store ====
 echo.
-echo  [1/2] Doc file bao cao bhkh-*.xlsx ...
+echo  [1/2] Doc file bao cao bhkh-*.xlsx trong thu muc BaoCao ...
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\build-data.ps1"
 if errorlevel 1 (
   echo.
@@ -24,7 +24,7 @@ if not exist ".git" (
   echo  Thu muc chua ket noi GitHub - hay chay setup-github.bat truoc.
   goto done
 )
-git add index.html data.js assets scripts update.bat setup-github.bat .gitignore README.md
+git add index.html data.js assets scripts update.bat setup-github.bat .gitignore README.md BaoCao/DOC-TRUOC.txt
 git commit -m "Cap nhat so lieu %date% %time:~0,5%" >nul
 if errorlevel 1 echo  Khong co thay doi moi de commit.
 git push

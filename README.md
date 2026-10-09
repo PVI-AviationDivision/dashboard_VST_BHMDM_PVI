@@ -1,7 +1,7 @@
 # Dashboard BH Một đổi một · Viettel Store × BH PVI
 
 ## Cập nhật hằng ngày
-1. Xuất báo cáo từ hệ thống, lưu file `bhkh-YYYY-MM-DD.xlsx` vào thư mục này.
+1. Xuất báo cáo từ hệ thống, lưu file `bhkh-YYYY-MM-DD.xlsx` vào thư mục **`BaoCao`**.
 2. Đóng file Excel (khuyến nghị), bấm đúp `update.bat`.
 3. Script đọc **tất cả** file `bhkh-*.xlsx`, gộp và loại trùng theo Số đơn BH (file mới nhất được ưu tiên), tạo lại `data.js`, rồi commit + push lên GitHub.
 

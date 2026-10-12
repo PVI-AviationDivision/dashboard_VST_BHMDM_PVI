@@ -5,7 +5,7 @@ cd /d "%~dp0"
 echo.
 echo  ==== Cap nhat dashboard BH Mot doi mot - Viettel Store ====
 echo.
-echo  [1/2] Doc file bao cao bhkh-*.xlsx trong thu muc BaoCao ...
+echo  [1/3] Doc file bao cao bhkh-*.xlsx trong thu muc BaoCao ...
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\build-data.ps1"
 if errorlevel 1 (
   echo.
@@ -14,7 +14,7 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo  [2/2] Day len GitHub ...
+echo  [2/3] Day len GitHub ...
 where git >nul 2>nul
 if errorlevel 1 (
   echo  Chua cai Git - bo qua buoc day len. Mo index.html de xem.
@@ -36,5 +36,9 @@ if errorlevel 1 (
 echo  Da day len GitHub. Trang se cap nhat sau khoang 1 phut.
 :done
 echo.
+echo  [3/3] Tao tin nhan bao cao (tu dong copy vao clipboard) ...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\make-message.ps1"
+echo.
 start "" "%~dp0index.html"
-timeout /t 5 >nul
+echo  Bam phim bat ky de dong cua so.
+pause >nul

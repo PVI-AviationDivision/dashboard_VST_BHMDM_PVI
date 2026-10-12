@@ -547,7 +547,7 @@ function renderDaily(m){
   m.g.forEach(r=>{const b=B.out[B.idx.get(B.keyOf(r.ngay))];if(b){b.g++;b.phiG+=r.phi;}});
   m.h.forEach(c=>{const b=B.out[B.idx.get(B.keyOf(cancelDate(c)))];if(b){b.h++;b.phiH+=c.phiHuy;}});
   $('dailySub').textContent=(B.weekly?'Theo tuần · ':'')+'Đơn ghi nhận (trên trục) và đơn hủy theo ngày SĐBS (dưới trục)';
-  const W=el.clientWidth||600,H=280,ml=34,mr=8,mt=18,mb=28;
+  const W=el.clientWidth||600,H=290,ml=34,mr=8,mt=20,mb=40;
   const maxG=niceMax(Math.max(1,...B.out.map(b=>b.g))),maxH=Math.max(...B.out.map(b=>b.h));
   const hTop=(H-mt-mb)*(maxH>0?0.74:0.94);const unit=hTop/maxG;
   const hBot=maxH>0?Math.max(unit*maxH,(H-mt-mb)-hTop):0;
@@ -565,9 +565,15 @@ function renderDaily(m){
     s+=`<rect data-i="${i}" x="${ml+bw*i}" y="${mt}" width="${bw}" height="${H-mt-mb}" fill="transparent"/>`;
   });
   s+=`<line class="zero" x1="${ml}" x2="${W-mr}" y1="${y0}" y2="${y0}"/>`;
-  // direct label on peak
+  // value labels on every bar (skip only when columns are too narrow to read)
+  const fs=bw>=22?11:bw>=14?10:9, showAll=bw>=11;
   let pk=0;B.out.forEach((b,i)=>{if(b.g>B.out[pk].g)pk=i;});
-  if(B.out[pk].g){const cx=ml+bw*pk+bw/2;s+=`<text x="${cx}" y="${y0-B.out[pk].g*unit-6}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${B.out[pk].g}</text>`;}
+  B.out.forEach((b,i)=>{
+    if(!showAll&&i!==pk)return;
+    const cx=ml+bw*i+bw/2;
+    if(b.g)s+=`<text x="${cx}" y="${y0-b.g*unit-5}" text-anchor="middle" style="fill:var(--ink);font-weight:600;font-size:${fs}px">${b.g}</text>`;
+    if(b.h&&showAll)s+=`<text x="${cx}" y="${y0+b.h*unit+fs+3}" text-anchor="middle" style="fill:var(--s-cancel);font-weight:600;font-size:${fs}px">${b.h}</text>`;
+  });
   s+='</svg>';el.innerHTML=s;
   el.querySelectorAll('rect[data-i]').forEach(r=>{
     const b=B.out[+r.dataset.i];

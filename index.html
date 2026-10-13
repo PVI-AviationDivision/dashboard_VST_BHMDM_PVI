@@ -22,7 +22,7 @@
   --bg:#F4F6FA; --surface:#FFFFFF; --surface-2:#F8F9FC; --line:#E3E7EF; --grid:#EDF0F5;
   --ink:#0F1B2D; --ink-2:#4A5568; --ink-3:#7A8599;
   --s-issue:#2F5FC4; --s-cancel:#E41E26; --s-issue-soft:#E6EDFA; --s-cancel-soft:#FDE8E9;
-  --good:#0F8A5F; --good-soft:#E3F5EE; --warn:#B26A00; --warn-soft:#FFF3DF;
+  --weekend:#EEF1F7; --good:#0F8A5F; --good-soft:#E3F5EE; --warn:#B26A00; --warn-soft:#FFF3DF;
   --shadow:0 1px 2px rgba(15,27,45,.05),0 8px 24px rgba(15,27,45,.06);
   --radius:20px;
 }
@@ -31,7 +31,7 @@
     --bg:#0B111C; --surface:#121A28; --surface-2:#172131; --line:#243045; --grid:#1D283A;
     --ink:#EEF2F8; --ink-2:#AEB8C8; --ink-3:#7C889C;
     --s-issue:#5B8DEF; --s-cancel:#F0545B; --s-issue-soft:#1B2A45; --s-cancel-soft:#3A1B22;
-    --good:#3FC495; --good-soft:#123329; --warn:#F2B04A; --warn-soft:#3A2A10;
+    --weekend:#18233A; --good:#3FC495; --good-soft:#123329; --warn:#F2B04A; --warn-soft:#3A2A10;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
   }
 }
@@ -39,7 +39,7 @@
   --bg:#0B111C; --surface:#121A28; --surface-2:#172131; --line:#243045; --grid:#1D283A;
   --ink:#EEF2F8; --ink-2:#AEB8C8; --ink-3:#7C889C;
   --s-issue:#5B8DEF; --s-cancel:#F0545B; --s-issue-soft:#1B2A45; --s-cancel-soft:#3A1B22;
-  --good:#3FC495; --good-soft:#123329; --warn:#F2B04A; --warn-soft:#3A2A10;
+  --weekend:#18233A; --good:#3FC495; --good-soft:#123329; --warn:#F2B04A; --warn-soft:#3A2A10;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box}
@@ -311,7 +311,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
       <div class="panel-h">
         <div><h2>Diễn biến theo ngày</h2><p id="dailySub">Đơn ghi nhận (trên trục) và đơn hủy (dưới trục)</p></div>
         <div class="sp"></div>
-        <div class="legend"><span><i style="background:var(--s-issue)"></i>Ghi nhận</span><span><i style="background:var(--s-cancel)"></i>Hủy</span></div>
+        <div class="legend"><span><i style="background:var(--s-issue)"></i>Ghi nhận</span><span><i style="background:var(--s-cancel)"></i>Hủy</span><span><i style="background:var(--weekend);box-shadow:inset 0 0 0 1px var(--line)"></i>Thứ 7 – CN</span></div>
       </div>
       <div class="chart" id="chDaily"></div>
     </div>
@@ -547,13 +547,21 @@ function renderDaily(m){
   m.g.forEach(r=>{const b=B.out[B.idx.get(B.keyOf(r.ngay))];if(b){b.g++;b.phiG+=r.phi;}});
   m.h.forEach(c=>{const b=B.out[B.idx.get(B.keyOf(cancelDate(c)))];if(b){b.h++;b.phiH+=c.phiHuy;}});
   $('dailySub').textContent=(B.weekly?'Theo tuần · ':'')+'Đơn ghi nhận (trên trục) và đơn hủy theo ngày SĐBS (dưới trục)';
-  const W=el.clientWidth||600,H=290,ml=34,mr=8,mt=20,mb=40;
+  const W=el.clientWidth||600,H=300,ml=34,mr=8,mt=20,mb=B.weekly?40:52;
   const maxG=niceMax(Math.max(1,...B.out.map(b=>b.g))),maxH=Math.max(...B.out.map(b=>b.h));
   const hTop=(H-mt-mb)*(maxH>0?0.74:0.94);const unit=hTop/maxG;
   const hBot=maxH>0?Math.max(unit*maxH,(H-mt-mb)-hTop):0;
   const y0=mt+hTop;
   const n=B.out.length,bw=(W-ml-mr)/n,barW=Math.max(2,Math.min(26,bw*0.62));
   let s=`<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Biểu đồ đơn ghi nhận và đơn hủy theo ${B.weekly?'tuần':'ngày'}">`;
+  const WD=['CN','T2','T3','T4','T5','T6','T7'];
+  const wdOf=k=>toD(k).getDay();
+  if(!B.weekly){
+    // weekend shading + Monday separators (drawn first, behind everything)
+    B.out.forEach((b,i)=>{const d=wdOf(b.key),x=ml+bw*i;
+      if(d===0||d===6)s+=`<rect x="${x}" y="${mt-6}" width="${bw}" height="${H-mb-mt+6}" fill="var(--weekend)"/>`;
+      if(d===1&&i>0)s+=`<line x1="${x}" x2="${x}" y1="${mt-6}" y2="${H-mb+4}" stroke="var(--ink-3)" stroke-opacity=".35" stroke-dasharray="2 3"/>`;});
+  }
   const ticks=[4,5,2,1].find(t=>Number.isInteger(maxG/t))||4;for(let i=0;i<=ticks;i++){const v=maxG*i/ticks,y=y0-v*unit;s+=`<line class="gl" x1="${ml}" x2="${W-mr}" y1="${y}" y2="${y}"/><text x="${ml-6}" y="${y+4}" text-anchor="end">${fmt(v)}</text>`;}
   if(maxH>0){s+=`<text x="${ml-6}" y="${y0+maxH*unit+4}" text-anchor="end">−${fmt(maxH)}</text>`;}
   const every=Math.ceil(n/(W<500?6:12));
@@ -561,7 +569,15 @@ function renderDaily(m){
     const cx=ml+bw*i+bw/2,x=cx-barW/2;
     if(b.g)s+=`<path d="${rr(x,y0-b.g*unit,barW,b.g*unit-1,4,true)}" fill="${css('--s-issue')}"/>`;
     if(b.h)s+=`<path d="${rr(x,y0+1,barW,b.h*unit,4,false)}" fill="${css('--s-cancel')}"/>`;
-    if((i%every===0&&n-1-i>=every*0.6)||i===n-1)s+=`<text x="${cx}" y="${H-8}" text-anchor="middle">${B.weekly?ddmm(b.key):b.label}</text>`;
+    if(B.weekly){if((i%every===0&&n-1-i>=every*0.6)||i===n-1)s+=`<text x="${cx}" y="${H-8}" text-anchor="middle">${ddmm(b.key)}</text>`;}
+    else{
+      const d=wdOf(b.key),we=d===0||d===6;
+      // weekday row: every column when wide enough, otherwise Mondays only
+      if(bw>=17||d===1)s+=`<text x="${cx}" y="${H-mb+16}" text-anchor="middle" style="font-size:${bw>=22?10.5:9.5}px;${d===1?'fill:var(--ink);font-weight:700':we?'fill:var(--ink-2);font-weight:600':''}">${WD[d]}</text>`;
+      // date row: Mondays + first/last day
+      const nearMon=k=>{for(let j=Math.max(0,i-2);j<=Math.min(n-1,i+2);j++){if(j!==i&&wdOf(B.out[j].key)===1)return true;}return false;};
+      if(d===1||((i===0||i===n-1)&&!nearMon(i)))s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" style="${d===1?'fill:var(--ink-2);font-weight:600':''}">${b.label}</text>`;
+    }
     s+=`<rect data-i="${i}" x="${ml+bw*i}" y="${mt}" width="${bw}" height="${H-mt-mb}" fill="transparent"/>`;
   });
   s+=`<line class="zero" x1="${ml}" x2="${W-mr}" y1="${y0}" y2="${y0}"/>`;
@@ -577,7 +593,8 @@ function renderDaily(m){
   s+='</svg>';el.innerHTML=s;
   el.querySelectorAll('rect[data-i]').forEach(r=>{
     const b=B.out[+r.dataset.i];
-    const html=e=>showTip(e,`<div class="t">${B.weekly?'Tuần từ '+ddmmyyyy(b.key):ddmmyyyy(b.key)}</div>${tr(css('--s-issue'),'Ghi nhận',fmt(b.g))}${tr(css('--s-cancel'),'Hủy',fmt(b.h))}<hr>${tr('','Thực tế',fmt(b.g-b.h))}${tr('','Phí thực tế',fmt(b.phiG-b.phiH)+' đ')}`);
+    const WDF=['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+    const html=e=>showTip(e,`<div class="t">${B.weekly?'Tuần từ '+ddmmyyyy(b.key):WDF[toD(b.key).getDay()]+', '+ddmmyyyy(b.key)}</div>${tr(css('--s-issue'),'Ghi nhận',fmt(b.g))}${tr(css('--s-cancel'),'Hủy',fmt(b.h))}<hr>${tr('','Thực tế',fmt(b.g-b.h))}${tr('','Phí thực tế',fmt(b.phiG-b.phiH)+' đ')}`);
     r.addEventListener('mouseenter',e=>{r.setAttribute('fill','rgba(127,140,160,.10)');html(e);});
     r.addEventListener('mousemove',moveTip);
     r.addEventListener('mouseleave',()=>{r.setAttribute('fill','transparent');hideTip();});

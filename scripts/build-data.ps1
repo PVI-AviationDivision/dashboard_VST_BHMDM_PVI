@@ -9,7 +9,11 @@
 param(
   [string]$Root = (Split-Path -Parent $PSScriptRoot),
   [string]$Pattern = 'bhkh-*.xlsx',
-  [string]$DataDir = 'BaoCao'
+  [string]$DataDir = 'BaoCao',
+  # Chi lay san pham BH Mot doi mot (Ma SP 020413). File xuat "BH Khac" co the lan san pham khac.
+  [string[]]$Products = @('020413'),
+  # Ngay bat dau tinh (yyyy-MM-dd). De trong = lay tat ca.
+  [string]$FromDate = ''
 )
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression
@@ -146,6 +150,7 @@ function G($k) { $i = $map[$k]; if ($i -ge 0 -and $i -lt $a.Length) { return [st
 
 $byPolicy = [ordered]@{}
 $sourceFiles = @()
+$skipProd = 0; $skipDate = 0
 $prevMax = ''   # latest Ngay CT already reported by earlier files
 $prevMin = ''   # earliest Ngay CT covered by earlier files
 foreach ($f in $files) {
@@ -205,6 +210,8 @@ foreach ($f in $files) {
     }
     if ($rec.ngay -and $rec.ngay -gt $fileMax) { $fileMax = $rec.ngay }
     if ($rec.ngay -and ($fileMin -eq '' -or $rec.ngay -lt $fileMin)) { $fileMin = $rec.ngay }
+    if ($Products.Count -gt 0 -and $Products -notcontains $rec.sp) { $skipProd++; continue }
+    if ($FromDate -ne '' -and $rec.ngay -and $rec.ngay -lt $FromDate) { $skipDate++; continue }
     $byPolicy[$sodon] = $rec
     $cnt++
   }
@@ -228,5 +235,7 @@ $outPath = Join-Path $Root 'data.js'
 $g = @($list | Where-Object { $_.loai -eq 'G' }).Count
 $h = @($list | Where-Object { $_.loai -eq 'H' }).Count
 Write-Host ""
+if ($skipProd -gt 0) { Write-Host ("  Bo qua " + $skipProd + " dong khong phai san pham Mot doi mot (Ma SP khac " + ($Products -join ',') + ")") }
+if ($skipDate -gt 0) { Write-Host ("  Bo qua " + $skipDate + " dong truoc ngay " + $FromDate) }
 Write-Host ("  Ghi nhan: " + $g + "  |  Huy (SDBS): " + $h + "  |  Thuc te: " + ($g - $h))
 Write-Host ("  Da ghi: " + $outPath)

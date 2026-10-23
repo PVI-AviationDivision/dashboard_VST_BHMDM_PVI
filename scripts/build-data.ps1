@@ -1,7 +1,9 @@
 # ------------------------------------------------------------------
 #  Build data.js for the "BH Mot doi mot - Viettel Store" dashboard
-#  - Reads every bhkh-*.xlsx in the project folder (no Excel/Python needed)
+#  - Incremental: keeps a running store (BaoCao\_tonghop.csv); each run reads
+#    only NEW bhkh-*.xlsx files in BaoCao, then moves them to BaoCao\DaNap
 #  - Merges & de-duplicates by policy number (newest file wins)
+#  - Use -Rebuild to re-read everything (BaoCao + BaoCao\DaNap) from scratch
 #  - Masks customer names before writing data.js (safe to publish)
 #  Compatible with Windows PowerShell 5.1 and PowerShell 7+.
 #  File kept ASCII-only on purpose (PS 5.1 encoding safety).
@@ -13,7 +15,9 @@ param(
   # Chi lay san pham BH Mot doi mot (Ma SP 020413). File xuat "BH Khac" co the lan san pham khac.
   [string[]]$Products = @('020413'),
   # Ngay bat dau tinh (yyyy-MM-dd). De trong = lay tat ca.
-  [string]$FromDate = ''
+  [string]$FromDate = '',
+  # Doc lai toan bo file (ke ca BaoCao\DaNap) va tao lai file tong hop
+  [switch]$Rebuild
 )
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression
@@ -139,26 +143,49 @@ $want = [ordered]@{
   cb = 'cb khai thac'; file = 'sl file dinh kem'; tt = 'trang thai'
 }
 
-# reports live in <Root>\BaoCao (files left in the root folder are still read)
-$dataPath = Join-Path $Root $DataDir
-if (-not (Test-Path $dataPath)) { New-Item -ItemType Directory -Path $dataPath | Out-Null }
-$files = @(Get-ChildItem -Path $dataPath, $Root -Filter $Pattern -File | Where-Object { $_.Name -notlike '~$*' } | Sort-Object @{ Expression = { $m = [regex]::Match($_.Name, '\d{4}-\d{2}-\d{2}'); if ($m.Success) { $m.Value } else { $_.LastWriteTime.ToString('yyyy-MM-dd') } } }, LastWriteTime)
-if ($files.Count -eq 0) { throw "Khong tim thay file $Pattern trong thu muc $DataDir" }
+# ---------------- paths ----------------
+$dataPath  = Join-Path $Root $DataDir
+$donePath  = Join-Path $dataPath 'DaNap'
+$storePath = Join-Path $dataPath '_tonghop.csv'
+foreach ($d in @($dataPath, $donePath)) { if (-not (Test-Path $d)) { New-Item -ItemType Directory -Path $d | Out-Null } }
+
+$cols = @('ct','ngay','don','goc','loai','sdbs','kh','kid','sp','stbh','phi','bd','kt','cb','tt','nap','lui')
+$byPolicy = New-Object System.Collections.Specialized.OrderedDictionary
+$prevMax = ''; $prevMin = ''
+$fullRun = $Rebuild -or -not (Test-Path $storePath)
+
+if (-not $fullRun) {
+  foreach ($r in (Import-Csv -Path $storePath -Encoding UTF8)) {
+    $rec = [ordered]@{}
+    foreach ($c in $cols) { $rec[$c] = $r.$c }
+    $rec.stbh = [double]$rec.stbh; $rec.phi = [double]$rec.phi; $rec.lui = ($rec.lui -eq 'True')
+    $byPolicy[$rec.don] = $rec
+    if ($rec.ngay) {
+      if ($prevMax -eq '' -or $rec.ngay -gt $prevMax) { $prevMax = $rec.ngay }
+      if ($prevMin -eq '' -or $rec.ngay -lt $prevMin) { $prevMin = $rec.ngay }
+    }
+  }
+  Write-Host ("  Da co san " + $byPolicy.Count + " dong trong file tong hop.")
+}
+
+$dirs = @($dataPath, $Root)
+if ($fullRun) { $dirs = @($donePath, $dataPath, $Root); Write-Host "  Che do doc lai toan bo file." }
+$files = @(Get-ChildItem -Path $dirs -Filter $Pattern -File | Where-Object { $_.Name -notlike '~$*' } |
+  Sort-Object @{ Expression = { $m = [regex]::Match($_.Name, '\d{4}-\d{2}-\d{2}'); if ($m.Success) { $m.Value } else { $_.LastWriteTime.ToString('yyyy-MM-dd') } } }, LastWriteTime)
+
+if ($files.Count -eq 0 -and $byPolicy.Count -eq 0) { throw "Khong tim thay file $Pattern trong thu muc $DataDir" }
+if ($files.Count -eq 0) { Write-Host "  Khong co file bao cao moi trong thu muc $DataDir - giu nguyen so lieu." }
 
 # reads column $k of current row $a using header map $map (dynamic scope)
 function G($k) { $i = $map[$k]; if ($i -ge 0 -and $i -lt $a.Length) { return [string]$a[$i] } else { return '' } }
 
-$byPolicy = [ordered]@{}
-$sourceFiles = @()
 $skipProd = 0; $skipDate = 0
-$prevMax = ''   # latest Ngay CT already reported by earlier files
-$prevMin = ''   # earliest Ngay CT covered by earlier files
+$readFiles = @()
 foreach ($f in $files) {
+  Write-Host ("  - Doc file: " + $f.Name)
   $fm = [regex]::Match($f.Name, '\d{4}-\d{2}-\d{2}')
   $fileDate = $(if ($fm.Success) { $fm.Value } else { $f.LastWriteTime.ToString('yyyy-MM-dd') })
-  $fileMax = $prevMax
-  $fileMin = $prevMin
-  Write-Host ("  - Doc file: " + $f.Name)
+  $fileMax = $prevMax; $fileMin = $prevMin
   $rows = Read-XlsxRows $f.FullName
   $hdrIdx = -1; $map = @{}
   for ($r = 0; $r -lt [math]::Min(15, $rows.Count); $r++) {
@@ -170,7 +197,7 @@ foreach ($f in $files) {
     }
   }
   if ($hdrIdx -lt 0) { Write-Warning ("    Bo qua (khong thay cot 'So don BH'): " + $f.Name); continue }
-  $cnt = 0
+  $cnt = 0; $new = 0
   for ($r = $hdrIdx + 1; $r -lt $rows.Count; $r++) {
     $a = $rows[$r]
     $sodon = (G 'sodon').Trim()
@@ -181,61 +208,82 @@ foreach ($f in $files) {
     if ($isAdj) { $sdbs = ([regex]::Match($sodon, '/(E\d+.*)$')).Groups[1].Value.Trim() }
     $name = G 'kh'
     $rec = [ordered]@{
-      ct    = (G 'soct').Trim()
-      ngay  = To-IsoDate (G 'ngay')
-      don   = $sodon
-      goc   = $base
-      loai  = $(if ($isAdj) { 'H' } else { 'G' })
-      sdbs  = $sdbs
-      kh    = Mask-Name $name
-      kid   = Short-Hash $name
-      sp    = (G 'masp').Trim()
-      stbh  = To-Number (G 'stbh')
-      phi   = To-Number (G 'phi')
-      bd    = To-IsoDate (G 'bd')
-      kt    = To-IsoDate (G 'kt')
-      cb    = (G 'cb').Trim()
-      tt    = (G 'tt').Trim()
-      nap   = $fileDate
-      lui   = $false
+      ct = (G 'soct').Trim(); ngay = To-IsoDate (G 'ngay'); don = $sodon; goc = $base
+      loai = $(if ($isAdj) { 'H' } else { 'G' }); sdbs = $sdbs
+      kh = Mask-Name $name; kid = Short-Hash $name; sp = (G 'masp').Trim()
+      stbh = To-Number (G 'stbh'); phi = To-Number (G 'phi')
+      bd = To-IsoDate (G 'bd'); kt = To-IsoDate (G 'kt'); cb = (G 'cb').Trim(); tt = (G 'tt').Trim()
+      nap = $fileDate; lui = $false
     }
+    if ($Products.Count -gt 0 -and $Products -notcontains $rec.sp) { $skipProd++; continue }
+    if ($FromDate -ne '' -and $rec.ngay -and $rec.ngay -lt $FromDate) { $skipDate++; continue }
     if ($byPolicy.Contains($sodon)) {
-      # keep when the policy was first seen
-      $rec.nap = $byPolicy[$sodon].nap
-      $rec.lui = $byPolicy[$sodon].lui
-    } elseif ($prevMax -ne '' -and $rec.ngay -and $rec.ngay -lt $prevMax -and $rec.ngay -ge $prevMin) {
-      # new policy dated inside a period already reported -> back-dated entry
-      # (dates before the earliest reported day just mean the export range was widened)
-      $rec.lui = $true
+      $rec.nap = $byPolicy[$sodon].nap; $rec.lui = $byPolicy[$sodon].lui
+    } else {
+      $new++
+      if ($prevMax -ne '' -and $rec.ngay -and $rec.ngay -lt $prevMax -and $rec.ngay -ge $prevMin) { $rec.lui = $true }
     }
     if ($rec.ngay -and $rec.ngay -gt $fileMax) { $fileMax = $rec.ngay }
     if ($rec.ngay -and ($fileMin -eq '' -or $rec.ngay -lt $fileMin)) { $fileMin = $rec.ngay }
-    if ($Products.Count -gt 0 -and $Products -notcontains $rec.sp) { $skipProd++; continue }
-    if ($FromDate -ne '' -and $rec.ngay -and $rec.ngay -lt $FromDate) { $skipDate++; continue }
     $byPolicy[$sodon] = $rec
     $cnt++
   }
-  Write-Host ("    -> " + $cnt + " dong")
-  $sourceFiles += $f.Name
-  $prevMax = $fileMax
-  $prevMin = $fileMin
+  Write-Host ("    -> " + $cnt + " dong (" + $new + " don moi)")
+  $readFiles += $f
+  $prevMax = $fileMax; $prevMin = $fileMin
 }
 
+# ---------------- write store (CSV) ----------------
 $list = @($byPolicy.Values)
-$payload = [ordered]@{
-  generatedAt = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss')
-  sourceFiles = $sourceFiles
-  rows        = $list
+$list | ForEach-Object { New-Object PSObject -Property $_ } | Select-Object $cols |
+  Export-Csv -Path $storePath -NoTypeInformation -Encoding UTF8
+
+# ---------------- write data.js (hand-built JSON: no size limit in PS 5.1) ----------------
+function JS([string]$v) {
+  if ($null -eq $v) { return 'null' }
+  if ($v -notmatch '["\\\x00-\x1f]') { return '"' + $v + '"' }   # fast path
+  $sb = New-Object Text.StringBuilder
+  [void]$sb.Append('"')
+  foreach ($ch in $v.ToCharArray()) {
+    switch ($ch) {
+      '"' { [void]$sb.Append('\"') } '\' { [void]$sb.Append('\\') }
+      "`n" { [void]$sb.Append('\n') } "`r" { [void]$sb.Append('\r') } "`t" { [void]$sb.Append('\t') }
+      default { if ([int]$ch -lt 32) { [void]$sb.Append(('\u{0:x4}' -f [int]$ch)) } else { [void]$sb.Append($ch) } }
+    }
+  }
+  [void]$sb.Append('"'); return $sb.ToString()
 }
-$json = $payload | ConvertTo-Json -Depth 5 -Compress
-$js = "/* Tu dong sinh boi scripts/build-data.ps1 - khong sua tay */`nwindow.MDM_DATA = " + $json + ";`n"
+$inv = [Globalization.CultureInfo]::InvariantCulture
+$all = @(Get-ChildItem -Path @($donePath, $dataPath, $Root) -Filter $Pattern -File | Where-Object { $_.Name -notlike '~$*' } | Sort-Object Name | ForEach-Object { $_.Name })
+$out = New-Object Text.StringBuilder
+[void]$out.Append("/* Tu dong sinh boi scripts/build-data.ps1 - khong sua tay */`nwindow.MDM_DATA = {")
+[void]$out.Append('"generatedAt":' + (JS (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss')) + ',"sourceFiles":[' + (($all | ForEach-Object { JS $_ }) -join ',') + '],"rows":[')
+$first = $true
+foreach ($r in $list) {
+  if (-not $first) { [void]$out.Append(',') }; $first = $false
+  [void]$out.Append('{"ct":' + (JS $r.ct) + ',"ngay":' + (JS $r.ngay) + ',"don":' + (JS $r.don) + ',"goc":' + (JS $r.goc) +
+    ',"loai":' + (JS $r.loai) + ',"sdbs":' + (JS $r.sdbs) + ',"kh":' + (JS $r.kh) + ',"kid":' + (JS $r.kid) + ',"sp":' + (JS $r.sp) +
+    ',"stbh":' + ([double]$r.stbh).ToString('0.##', $inv) + ',"phi":' + ([double]$r.phi).ToString('0.##', $inv) +
+    ',"bd":' + (JS $r.bd) + ',"kt":' + (JS $r.kt) + ',"cb":' + (JS $r.cb) + ',"tt":' + (JS $r.tt) + ',"nap":' + (JS $r.nap) +
+    ',"lui":' + $(if ($r.lui) { 'true' } else { 'false' }) + '}')
+}
+[void]$out.Append("]};`n")
 $outPath = Join-Path $Root 'data.js'
-[IO.File]::WriteAllText($outPath, $js, (New-Object Text.UTF8Encoding($false)))
+[IO.File]::WriteAllText($outPath, $out.ToString(), (New-Object Text.UTF8Encoding($false)))
+
+# ---------------- move processed files to BaoCao\DaNap ----------------
+foreach ($f in $readFiles) {
+  if ($f.DirectoryName -eq $donePath) { continue }
+  $dest = Join-Path $donePath $f.Name
+  if (Test-Path $dest) { $dest = Join-Path $donePath ($f.BaseName + '_' + (Get-Date).ToString('HHmmss') + $f.Extension) }
+  try { Move-Item -LiteralPath $f.FullName -Destination $dest -ErrorAction Stop }
+  catch { Write-Warning ("    Khong chuyen duoc " + $f.Name + " vao DaNap (file dang mo?). Lan sau se doc lai, khong anh huong so lieu.") }
+}
 
 $g = @($list | Where-Object { $_.loai -eq 'G' }).Count
 $h = @($list | Where-Object { $_.loai -eq 'H' }).Count
 Write-Host ""
-if ($skipProd -gt 0) { Write-Host ("  Bo qua " + $skipProd + " dong khong phai san pham Mot doi mot (Ma SP khac " + ($Products -join ',') + ")") }
+if ($skipProd -gt 0) { Write-Host ("  Bo qua " + $skipProd + " dong khong phai san pham Mot doi mot (chi lay Ma SP " + ($Products -join ',') + ")") }
 if ($skipDate -gt 0) { Write-Host ("  Bo qua " + $skipDate + " dong truoc ngay " + $FromDate) }
 Write-Host ("  Ghi nhan: " + $g + "  |  Huy (SDBS): " + $h + "  |  Thuc te: " + ($g - $h))
 Write-Host ("  Da ghi: " + $outPath)

@@ -7,10 +7,15 @@ $ErrorActionPreference = 'Stop'
 
 $Link = 'https://pvi-aviationdivision.github.io/dashboard_VST_BHMDM_PVI/'
 
-$raw = [IO.File]::ReadAllText((Join-Path $Root 'data.js'), [Text.Encoding]::UTF8)
-$json = $raw.Substring($raw.IndexOf('{'), $raw.LastIndexOf('}') - $raw.IndexOf('{') + 1)
-$D = $json | ConvertFrom-Json
-$rows = @($D.rows)
+$store = Join-Path $Root 'BaoCao\_tonghop.csv'
+if (Test-Path $store) {
+  # đọc file tổng hợp CSV (nhanh, không giới hạn dung lượng như ConvertFrom-Json của PS 5.1)
+  $rows = @(Import-Csv -Path $store -Encoding UTF8)
+} else {
+  $raw = [IO.File]::ReadAllText((Join-Path $Root 'data.js'), [Text.Encoding]::UTF8)
+  $json = $raw.Substring($raw.IndexOf('{'), $raw.LastIndexOf('}') - $raw.IndexOf('{') + 1)
+  $rows = @(($json | ConvertFrom-Json).rows)
+}
 
 $vi = [Globalization.CultureInfo]::GetCultureInfo('vi-VN')
 function N($x) { return ([double]$x).ToString('N0', $vi) }
@@ -34,8 +39,8 @@ $mG = @($GList | Where-Object { $_.ngay.StartsWith($month) }).Count
 $mH = @($CList | Where-Object { $_.ngay.StartsWith($month) }).Count
 $tG = $GList.Count; $tH = $CList.Count
 
-$phiG = ($GList | Measure-Object -Property phi -Sum).Sum
-$phiH = 0; foreach ($cx in $CList) { if ($origBy.ContainsKey($cx.goc)) { $phiH += $origBy[$cx.goc].phi } else { $phiH += $cx.phi } }
+$phiG = 0; foreach ($og in $GList) { $phiG += [double]$og.phi }
+$phiH = 0; foreach ($cx in $CList) { if ($origBy.ContainsKey($cx.goc)) { $phiH += [double]$origBy[$cx.goc].phi } else { $phiH += [double]$cx.phi } }
 $mm = $month.Split('-'); $monthLabel = $mm[1] + '/' + $mm[0]
 
 $msg = @(

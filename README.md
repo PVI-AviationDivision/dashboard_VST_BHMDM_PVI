@@ -7,7 +7,13 @@
 
 Không cần cài Python hay Excel — chỉ dùng PowerShell có sẵn trên Windows.
 
+## Cách script đọc file (từ 23/10/2026)
+- Mỗi lần chạy `update.bat` chỉ đọc **file mới** trong `BaoCao`, gộp vào file tổng hợp `BaoCao\_tonghop.csv`, rồi chuyển file đã đọc sang `BaoCao\DaNap`.
+- Không xóa `_tonghop.csv` và thư mục `DaNap` (đây là lịch sử để tính số liệu).
+- Nếu số liệu sai hoặc đổi quy tắc tính: bấm `rebuild.bat` để đọc lại toàn bộ, sau đó bấm `update.bat`.
+
 ## Quy tắc số liệu
+- Chỉ lấy sản phẩm Mã SP **020413** (Một đổi một); dòng sản phẩm khác bị bỏ qua.
 - Đơn có hậu tố `/E01 SĐBS` (mọi `/Exx`) = đơn hủy, gắn với đơn gốc cùng số.
 - Đơn thực tế = Đơn ghi nhận − Đơn hủy. Phí thực tế = phí ghi nhận − phí đơn hủy.
 - Nút "Ghi nhận hủy theo": *Ngày SĐBS* (hủy tính vào ngày phát sinh SĐBS) hoặc *Ngày phát hành gốc* (tính ngược về ngày đơn gốc).

@@ -12,6 +12,11 @@ Không cần cài Python hay Excel — chỉ dùng PowerShell có sẵn trên Wi
 - Không xóa `_tonghop.csv` và thư mục `DaNap` (đây là lịch sử để tính số liệu).
 - Nếu số liệu sai hoặc đổi quy tắc tính: bấm `rebuild.bat` để đọc lại toàn bộ, sau đó bấm `update.bat`.
 
+## Báo cáo tháng của Viettel Store
+- Bỏ file "Quản lý hồ sơ bảo hiểm PVI" hằng tháng của VST vào thư mục `BaoCao\VST` (giữ lại các tháng cũ), rồi bấm `update.bat`.
+- Script chỉ lấy ngày/giờ tạo hồ sơ, cửa hàng, mã nhân viên, trạng thái, mã máy. **Không lấy** tên, SĐT, địa chỉ, IMEI khách hàng.
+- Tên dòng máy và dung lượng lấy từ `BaoCao\VST\danh-muc-may.xlsx`. Khi có mã máy mới, cửa sổ đen sẽ báo, thêm dòng vào file này.
+
 ## Quy tắc số liệu
 - Chỉ lấy sản phẩm Mã SP **020413** (Một đổi một); dòng sản phẩm khác bị bỏ qua.
 - Đơn có hậu tố `/E01 SĐBS` (mọi `/Exx`) = đơn hủy, gắn với đơn gốc cùng số.

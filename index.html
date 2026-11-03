@@ -243,6 +243,23 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
   .wrap{max-width:none;padding:0}
   .tbl-wrap{max-height:none!important;overflow:visible!important}
 }
+.sec-band{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:6px 16px;margin:34px 2px 2px;padding-top:18px;border-top:1px dashed var(--line)}
+.sec-k{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--s-cancel);font-weight:700}
+.sec-h{margin:2px 0 0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.sec-p{margin:0;font-size:12.5px;color:var(--ink-3)}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.mini>div{background:var(--surface-2);border-radius:12px;padding:10px 12px}
+.mini .l{font-size:11.5px;color:var(--ink-3)} .mini .v{font-size:18px;font-weight:700}
+.heat{display:grid;gap:2px;font-size:10.5px}
+.heat .c{height:26px;border-radius:4px;display:grid;place-items:center;font-variant-numeric:tabular-nums;cursor:default}
+.heat .hd{color:var(--ink-3);text-align:center;align-self:end}
+.heat .rl{color:var(--ink-2);font-weight:600;align-self:center;padding-right:4px}
+.rec-tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+@media (max-width:900px){.rec-tiles{grid-template-columns:repeat(2,1fr)}}
+.rec-tiles>div{background:var(--surface-2);border-radius:12px;padding:10px 12px}
+.rec-tiles .l{font-size:11.5px;color:var(--ink-3)} .rec-tiles .v{font-size:20px;font-weight:700} .rec-tiles .s{font-size:11.5px;color:var(--ink-3)}
+.subh{font-size:12.5px;font-weight:700;margin:14px 0 6px}
+.muted{color:var(--ink-3);font-size:12px}
 .foot{margin:28px 0 40px;font-size:12px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .nodata{margin:60px auto;max-width:560px;text-align:center;color:var(--ink-2)}
@@ -347,6 +364,48 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
     </div>
   </section>
 
+  <section id="vstSec" hidden>
+    <div class="sec-band">
+      <div><div class="sec-k">Từ báo cáo tháng của Viettel Store</div><h2 class="sec-h">Kênh bán Viettel Store</h2></div>
+      <p class="sec-p" id="vstNote"></p>
+    </div>
+    <div class="grid row2b">
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Theo tỉnh / thành</h2><p id="pvSub">Số hồ sơ thành công theo tỉnh của cửa hàng</p></div></div>
+        <div class="bars-h" id="vstProv"></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Top cửa hàng</h2><p id="stSub">Xếp theo số hồ sơ thành công</p></div></div>
+        <div class="tbl-wrap" style="max-height:420px;overflow:auto"><table id="vstStores"></table></div>
+      </div>
+    </div>
+    <div class="grid row2b">
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Khung giờ &amp; thứ bán</h2><p>Số hồ sơ theo giờ tạo trong ngày và thứ trong tuần</p></div></div>
+        <div id="vstHeat"></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Top nhân viên bán</h2><p id="nvSub">Theo mã nhân viên tạo hồ sơ</p></div></div>
+        <div class="tbl-wrap" style="max-height:420px;overflow:auto"><table id="vstStaff"></table></div>
+      </div>
+    </div>
+    <div class="grid row2b">
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Theo dòng máy</h2><p id="mdSub">Số hồ sơ thành công theo dòng máy</p></div></div>
+        <div class="bars-h" id="vstModel"></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Theo dung lượng</h2><p id="capSub">Số hồ sơ thành công theo dung lượng máy</p></div></div>
+        <div class="bars-h" id="vstCap"></div>
+        <div id="vstSkuNote"></div>
+      </div>
+    </div>
+    <div class="card panel" style="margin-top:16px">
+      <div class="panel-h"><div><h2>Đối soát VST ↔ BH PVI</h2><p id="recSub">So số đơn theo ngày giữa báo cáo VST và dữ liệu cấp đơn của BH PVI</p></div></div>
+      <div id="vstRec"></div>
+    </div>
+  </section>
+
   <section class="card panel" style="margin-top:16px">
     <div class="panel-h"><div><h2>Tổng hợp theo tháng</h2><p>Toàn bộ dữ liệu · đơn hủy tính theo ngày SĐBS</p></div></div>
     <div class="tbl-wrap"><table id="tblMonth"></table></div>
@@ -387,6 +446,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
 </div>
 
 <script src="data.js"></script>
+<script src="vst.js" onerror="window.VST_DATA=null"></script>
 <script>
 (function(){
 "use strict";
@@ -853,10 +913,102 @@ $('btnPng').addEventListener('click',async()=>{
   }catch(e){sp.textContent='Tải ảnh';alert('Không tạo được ảnh (cần kết nối Internet). Có thể dùng nút In / PDF.');}
 });
 
+
+/* ============ Viettel Store monthly report ============ */
+const V=window.VST_DATA;
+const VR=(V&&V.rows||[]).map(r=>({ngay:r[0],gio:r[1],ch:r[2],nv:r[3],tt:r[4],loi:r[5],sku:r[6]||''}));
+const mdl=k=>(V&&V.models&&V.models[k])||{m:'',c:'',g:0};
+const vMin=VR.length?VR.reduce((a,r)=>r.ngay<a?r.ngay:a,VR[0].ngay):null, vMax=VR.length?VR.reduce((a,r)=>r.ngay>a?r.ngay:a,VR[0].ngay):null;
+const pvName=c=>(V&&V.provinces&&V.provinces[c])||c||'Khác';
+const stInfo=c=>(V&&V.stores&&V.stores[c])||{pv:'',ad:''};
+function renderVST(){
+  if(!VR.length){$('vstSec').hidden=true;return;}
+  $('vstSec').hidden=false;
+  const f=S.from>vMin?S.from:vMin, t=S.to<vMax?S.to:vMax;
+  $('vstNote').textContent=`Báo cáo VST có số liệu từ ${ddmmyyyy(vMin)} đến ${ddmmyyyy(vMax)}`+(f>t?' · kỳ đang chọn nằm ngoài khoảng này':` · đang xem ${ddmmyyyy(f)} – ${ddmmyyyy(t)}`)+' · không chứa thông tin khách hàng';
+  const rows=VR.filter(r=>r.ngay>=f&&r.ngay<=t);
+  const ok=rows.filter(r=>!r.loi);              // ho so tao thanh cong (hieu luc + da huy)
+  // ---- provinces
+  const byPv=new Map();ok.forEach(r=>{const p=stInfo(r.ch).pv||'?';byPv.set(p,(byPv.get(p)||0)+1);});
+  const pv=[...byPv.entries()].sort((a,b)=>b[1]-a[1]);
+  const top=pv.slice(0,10),rest=pv.slice(10).reduce((a,x)=>a+x[1],0);if(rest)top.push(['_khac',rest]);
+  const nStores=new Set(ok.map(r=>r.ch)).size, mx=Math.max(1,...top.map(x=>x[1])), tot=ok.length||1;
+  $('pvSub').textContent=`${fmt(ok.length)} hồ sơ · ${pv.length} tỉnh/thành · ${fmt(nStores)} cửa hàng có bán`;
+  $('vstProv').innerHTML=top.length?top.map(([k,c])=>`<div class="rowb"><div class="k">${k==='_khac'?`${pv.length-10} tỉnh khác`:esc(pvName(k))}</div><div class="track"><div class="fill" style="width:${Math.max(2,c/mx*100)}%;${k==='_khac'?'opacity:.45':''}"></div></div><div class="val num">${c}<small>${pct(c/tot)}</small></div></div>`).join(''):'<div class="empty">Không có dữ liệu trong kỳ</div>';
+  // ---- stores
+  const bySt=new Map();rows.filter(r=>r.tt==='L'||r.tt==='H').forEach(r=>{const o=bySt.get(r.ch)||{n:0,h:0};o.n++;if(r.tt==='H')o.h++;bySt.set(r.ch,o);});
+  const st=[...bySt.entries()].sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0])).slice(0,20);
+  $('stSub').textContent=`Top ${st.length} / ${fmt(bySt.size)} cửa hàng · xếp theo số hồ sơ thành công`;
+  $('vstStores').innerHTML=`<thead><tr><th>#</th><th>Cửa hàng</th><th>Tỉnh</th><th class="r">Hồ sơ</th><th class="r">Hủy</th></tr></thead><tbody>`+
+    st.map(([c,o],i)=>{const s=stInfo(c);return `<tr><td class="num">${i+1}</td><td style="white-space:normal"><b class="mono">${esc(c)}</b><div class="muted">${esc(s.ad)}</div></td><td>${esc(pvName(s.pv))}</td><td class="r num"><b>${o.n}</b></td><td class="r num">${o.h||''}</td></tr>`;}).join('')+'</tbody>';
+  // ---- heatmap hour x weekday
+  const H0=8,H1=22, WD=['T2','T3','T4','T5','T6','T7','CN'];
+  const grid=Array.from({length:7},()=>Array(H1-H0+1).fill(0));
+  ok.forEach(r=>{const d=(toD(r.ngay).getDay()+6)%7;const h=Math.min(H1,Math.max(H0,r.gio));grid[d][h-H0]++;});
+  const hm=Math.max(1,...grid.flat()), base=css('--s-issue');
+  let hh=`<div class="heat" style="grid-template-columns:28px repeat(${H1-H0+1},1fr)"><div></div>`;
+  for(let h=H0;h<=H1;h++)hh+=`<div class="hd">${h===H0?'≤':h===H1?'≥':''}${h}h</div>`;
+  grid.forEach((row,d)=>{hh+=`<div class="rl">${WD[d]}</div>`;row.forEach((v,i)=>{const a=v?0.12+0.88*v/hm:0;hh+=`<div class="c" data-t="${WD[d]} · ${H0+i}h: ${v} hồ sơ" style="background:${v?`color-mix(in srgb,${base} ${Math.round(a*100)}%,transparent)`:'var(--surface-2)'};color:${a>0.55?'#fff':'var(--ink-2)'}">${v||''}</div>`;});});
+  hh+='</div>';
+  const byH=Array(24).fill(0);ok.forEach(r=>byH[r.gio]++);const pk=byH.indexOf(Math.max(...byH));
+  const byD=grid.map(r=>r.reduce((a,b)=>a+b,0));const pd=byD.indexOf(Math.max(...byD));
+  hh+=`<p class="muted" style="margin:10px 0 0">Giờ cao điểm: <b>${pk}h–${pk+1}h</b> (${byH[pk]} hồ sơ) · Ngày bán nhiều nhất: <b>${['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ nhật'][pd]}</b> (${byD[pd]} hồ sơ) · Giờ ngoài 8h–22h được gộp vào cột đầu/cuối.</p>`;
+  $('vstHeat').innerHTML=hh;
+  $('vstHeat').querySelectorAll('.c').forEach(c=>{c.addEventListener('mouseenter',e=>showTip(e,`<div class="t">${c.dataset.t}</div>`));c.addEventListener('mousemove',moveTip);c.addEventListener('mouseleave',hideTip);});
+  // ---- staff
+  const byNv=new Map();rows.filter(r=>r.tt==='L'||r.tt==='H').forEach(r=>{const o=byNv.get(r.nv)||{n:0,h:0,ch:new Map()};o.n++;if(r.tt==='H')o.h++;o.ch.set(r.ch,(o.ch.get(r.ch)||0)+1);byNv.set(r.nv,o);});
+  const nv=[...byNv.entries()].sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0]));
+  const n3=nv.filter(x=>x[1].n>=3).length;
+  $('nvSub').textContent=`${fmt(nv.length)} nhân viên có bán · bình quân ${(ok.length/(nv.length||1)).toLocaleString('vi-VN',{maximumFractionDigits:1})} hồ sơ/người · ${n3} người từ 3 hồ sơ trở lên`;
+  $('vstStaff').innerHTML=`<thead><tr><th>#</th><th>Mã NV</th><th>Cửa hàng chính</th><th class="r">Hồ sơ</th><th class="r">Hủy</th></tr></thead><tbody>`+
+    nv.slice(0,20).map(([c,o],i)=>{const m=[...o.ch.entries()].sort((a,b)=>b[1]-a[1])[0][0];return `<tr><td class="num">${i+1}</td><td class="mono"><b>${esc(c)}</b></td><td><span class="mono">${esc(m)}</span> <span class="muted">${esc(pvName(stInfo(m).pv))}</span></td><td class="r num"><b>${o.n}</b></td><td class="r num">${o.h||''}</td></tr>`;}).join('')+'</tbody>';
+  // ---- device model & capacity (needs BaoCao\VST\danh-muc-may.xlsx)
+  const capOrder=c=>{const m=/([\d.]+)\s*(TB|GB)/i.exec(c||'');return m?parseFloat(m[1])*(m[2].toUpperCase()==='TB'?1024:1):1e9;};
+  const barRows=(arr,tot,mxv,lab)=>arr.map(([k,c,dim])=>`<div class="rowb" title="${esc(k)}"><div class="k" style="${dim?'color:var(--ink-3)':''}">${lab?lab(k):esc(k)}</div><div class="track"><div class="fill" style="width:${Math.max(2,c/mxv*100)}%;${dim?'opacity:.4':''}"></div></div><div class="val num">${c}<small>${pct(c/tot)}</small></div></div>`).join('');
+  const byM=new Map(),byC=new Map(),unk=new Map();
+  ok.forEach(r=>{const x=mdl(r.sku);if(x.m){byM.set(x.m,(byM.get(x.m)||0)+1);}else{unk.set(r.sku||'(trống)',(unk.get(r.sku||'(trống)')||0)+1);}
+    const c=x.c||'';byC.set(c,(byC.get(c)||0)+1);});
+  const unkN=[...unk.values()].reduce((a,b)=>a+b,0);
+  const mArr=[...byM.entries()].sort((a,b)=>b[1]-a[1]).map(([k,c])=>[k,c,false]);if(unkN)mArr.push([`Chưa xác định (${unk.size} mã)`,unkN,true]);
+  const cArr=[...byC.entries()].filter(x=>x[0]).sort((a,b)=>capOrder(a[0])-capOrder(b[0])).map(([k,c])=>[k,c,false]);const cUnk=byC.get('')||0;if(cUnk)cArr.push(['Chưa xác định',cUnk,true]);
+  $('mdSub').textContent=byM.size?`${byM.size} dòng máy · ${fmt(ok.length)} hồ sơ`:'Chưa có tên dòng máy — điền file danh-muc-may.xlsx';
+  $('vstModel').innerHTML=mArr.length?barRows(mArr,ok.length||1,Math.max(1,...mArr.map(x=>x[1]))):'<div class="empty">Không có dữ liệu</div>';
+  $('vstCap').innerHTML=cArr.length?barRows(cArr,ok.length||1,Math.max(1,...cArr.map(x=>x[1]))):'<div class="empty">Không có dữ liệu</div>';
+  $('vstModel').querySelectorAll('.rowb .k').forEach(e=>e.style.textAlign='left');
+  $('vstModel').querySelectorAll('.rowb').forEach(e=>e.style.gridTemplateColumns='minmax(120px,40%) 1fr 70px');
+  if(unk.size){const top=[...unk.entries()].sort((a,b)=>b[1]-a[1]);
+    $('vstSkuNote').innerHTML=`<div class="subh">Mã máy chưa có tên (${unk.size} mã · ${unkN} hồ sơ)</div><p class="muted" style="margin:0 0 6px">Điền tên dòng máy và dung lượng cho các mã này trong <b>BaoCao\\VST\\danh-muc-may.xlsx</b>, rồi chạy update.bat.</p><div class="tbl-wrap" style="max-height:200px;overflow:auto"><table><thead><tr><th>Mã thiết bị</th><th class="r">Giá máy</th><th class="r">Hồ sơ</th></tr></thead><tbody>${top.map(([k,c])=>`<tr><td class="mono">${esc(k)}</td><td class="r num">${mdl(k).g?fmt(mdl(k).g):'–'}</td><td class="r num">${c}</td></tr>`).join('')}</tbody></table></div>`;}
+  else $('vstSkuNote').innerHTML='';
+  // ---- reconciliation with BH PVI (same date window covered by both sources)
+  const rf=f>minDate?f:minDate, rt=t<maxDate?t:maxDate;
+  if(rf>rt){$('vstRec').innerHTML='<div class="empty">Kỳ đang chọn không có dữ liệu chung giữa VST và BH PVI</div>';return;}
+  const vIn=VR.filter(r=>r.ngay>=rf&&r.ngay<=rt), vOk=vIn.filter(r=>!r.loi), vErr=vIn.filter(r=>r.loi);
+  const pG=G.filter(r=>r.ngay>=rf&&r.ngay<=rt), pH=pG.filter(r=>r.cancel);
+  const vH=vOk.filter(r=>r.tt==='H').length;
+  const dv=new Map(),dp=new Map();vOk.forEach(r=>dv.set(r.ngay,(dv.get(r.ngay)||0)+1));pG.forEach(r=>dp.set(r.ngay,(dp.get(r.ngay)||0)+1));
+  const days=[...new Set([...dv.keys(),...dp.keys()])].sort();
+  const diffs=days.map(d=>({d,v:dv.get(d)||0,p:dp.get(d)||0})).filter(x=>x.v!==x.p);
+  const diff=vOk.length-pG.length;
+  $('recSub').textContent=`Khoảng đối soát: ${ddmmyyyy(rf)} – ${ddmmyyyy(rt)} (ngày có cả dữ liệu VST và BH PVI)`;
+  const vL=vOk.filter(r=>r.tt==='L').length, pNet=pG.length-pH.length, extra=pG.length-vOk.length;
+  let h=`<div class="rec-tiles">
+    <div><div class="l">Ghi nhận: VST / BH PVI</div><div class="v num">${fmt(vOk.length)} / ${fmt(pG.length)}</div><div class="s">${diff?`lệch ${fmt(Math.abs(diff))}`:'Khớp'}</div></div>
+    <div><div class="l">Đã hủy: VST / BH PVI</div><div class="v num">${fmt(vH)} / ${fmt(pH.length)}</div><div class="s">${vH===pH.length?'Khớp':'lệch '+fmt(Math.abs(vH-pH.length))}</div></div>
+    <div style="outline:2px solid ${vL===pNet?'var(--good)':'var(--warn)'};outline-offset:-2px"><div class="l">Thực tế: VST hiệu lực / BH PVI</div><div class="v num" style="color:${vL===pNet?'var(--good)':'var(--warn)'}">${fmt(vL)} / ${fmt(pNet)}</div><div class="s">${vL===pNet?'✓ Khớp':'lệch '+fmt(Math.abs(vL-pNet))}</div></div>
+    <div><div class="l">Đơn BH PVI hủy không có trên VST</div><div class="v num">${fmt(Math.max(0,extra))}</div><div class="s">thường là đơn tạo trùng/lỗi rồi hủy</div></div>
+    <div><div class="l">Hồ sơ lỗi API (chưa cấp đơn)</div><div class="v num" style="color:${vErr.length?'var(--s-cancel)':'var(--good)'}">${fmt(vErr.length)}</div><div class="s">bán ở VST nhưng không sang BH PVI</div></div>
+  </div>`;
+  h+=`<div class="subh">Ngày có chênh lệch (${diffs.length}/${days.length} ngày)</div>`;
+  h+=diffs.length?`<div class="tbl-wrap" style="max-height:260px;overflow:auto"><table><thead><tr><th>Ngày</th><th class="r">VST</th><th class="r">BH PVI</th><th class="r">Lệch</th></tr></thead><tbody>${diffs.map(x=>`<tr><td>${ddmmyyyy(x.d)}</td><td class="r num">${x.v}</td><td class="r num">${x.p}</td><td class="r num" style="color:var(--warn);font-weight:600">${x.v-x.p>0?'+':''}${x.v-x.p}</td></tr>`).join('')}</tbody></table></div><p class="muted" style="margin:6px 0 0">Lệch ±1 giữa hai ngày liền kề thường do hồ sơ tạo sát nửa đêm hoặc BH PVI cấp đơn sang ngày hôm sau.</p>`:'<p class="muted">Số đơn từng ngày khớp hoàn toàn.</p>';
+  if(vErr.length){const byM=new Map();vErr.forEach(r=>byM.set(r.loi,(byM.get(r.loi)||0)+1));
+    h+=`<div class="subh">Hồ sơ lỗi API: ${[...byM.entries()].map(([k,v])=>`${esc(k)} (${v})`).join(' · ')}</div><div class="tbl-wrap" style="max-height:220px;overflow:auto"><table><thead><tr><th>Ngày</th><th>Giờ</th><th>Cửa hàng</th><th>Mã NV</th><th>Máy</th><th>Lý do</th></tr></thead><tbody>${vErr.sort((a,b)=>a.ngay<b.ngay?1:-1).map(r=>`<tr><td>${ddmmyyyy(r.ngay)}</td><td>${r.gio}h</td><td class="mono">${esc(r.ch)}</td><td class="mono">${esc(r.nv)}</td><td>${mdl(r.sku).m?esc(mdl(r.sku).m+' '+mdl(r.sku).c):`<span class="mono">${esc(r.sku)}</span>`}${mdl(r.sku).g?` <span class="muted">${money(mdl(r.sku).g)}</span>`:''}</td><td>${esc(r.loi)}</td></tr>`).join('')}</tbody></table></div>`;}
+  $('vstRec').innerHTML=h;
+}
+
 /* ============ main ============ */
 function renderAll(){
   const m=metrics(S.from,S.to);
-  renderHero();renderSummary();renderKpis(m);renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderMonth();renderList();
+  renderHero();renderSummary();renderKpis(m);renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderVST();renderMonth();renderList();
 }
 $('footSrc').textContent='Nguồn: '+(D.sourceFiles||[]).join(', ')+' · '+fmt(D.rows.length)+' dòng';
 renderAll();

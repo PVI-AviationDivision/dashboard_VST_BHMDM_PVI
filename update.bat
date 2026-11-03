@@ -14,6 +14,9 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
+echo  Doc bao cao thang cua Viettel Store (BaoCao\VST) ...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\build-vst.ps1"
+echo.
 echo  [2/3] Day len GitHub ...
 where git >nul 2>nul
 if errorlevel 1 (
@@ -24,7 +27,7 @@ if not exist ".git" (
   echo  Thu muc chua ket noi GitHub - hay chay setup-github.bat truoc.
   goto done
 )
-git add index.html data.js manifest.webmanifest assets scripts update.bat rebuild.bat setup-github.bat .gitignore README.md BaoCao/DOC-TRUOC.txt
+git add index.html data.js vst.js manifest.webmanifest assets scripts update.bat rebuild.bat setup-github.bat .gitignore README.md BaoCao/DOC-TRUOC.txt
 git commit -m "Cap nhat so lieu %date% %time:~0,5%" >nul
 if errorlevel 1 echo  Khong co thay doi moi de commit.
 git push

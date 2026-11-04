@@ -20,7 +20,7 @@
 :root{
   --navy:#163665; --red:#E41E26;
   --bg:#F4F6FA; --surface:#FFFFFF; --surface-2:#F8F9FC; --line:#E3E7EF; --grid:#EDF0F5;
-  --ink:#0F1B2D; --ink-2:#4A5568; --ink-3:#7A8599;
+  --ink:#0F1B2D; --ink-2:#4A5568; --ink-3:#5E6A7E;
   --s-issue:#2F5FC4; --s-cancel:#E41E26; --s-issue-soft:#E6EDFA; --s-cancel-soft:#FDE8E9;
   --weekend:#EEF1F7; --good:#0F8A5F; --good-soft:#E3F5EE; --warn:#B26A00; --warn-soft:#FFF3DF;
   --shadow:0 1px 2px rgba(15,27,45,.05),0 8px 24px rgba(15,27,45,.06);
@@ -29,7 +29,7 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0B111C; --surface:#121A28; --surface-2:#172131; --line:#243045; --grid:#1D283A;
-    --ink:#EEF2F8; --ink-2:#AEB8C8; --ink-3:#7C889C;
+    --ink:#EEF2F8; --ink-2:#B8C2D2; --ink-3:#8E9AAE;
     --s-issue:#5B8DEF; --s-cancel:#F0545B; --s-issue-soft:#1B2A45; --s-cancel-soft:#3A1B22;
     --weekend:#18233A; --good:#3FC495; --good-soft:#123329; --warn:#F2B04A; --warn-soft:#3A2A10;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
@@ -37,7 +37,7 @@
 }
 :root[data-theme="dark"]{
   --bg:#0B111C; --surface:#121A28; --surface-2:#172131; --line:#243045; --grid:#1D283A;
-  --ink:#EEF2F8; --ink-2:#AEB8C8; --ink-3:#7C889C;
+  --ink:#EEF2F8; --ink-2:#B8C2D2; --ink-3:#8E9AAE;
   --s-issue:#5B8DEF; --s-cancel:#F0545B; --s-issue-soft:#1B2A45; --s-cancel-soft:#3A1B22;
   --weekend:#18233A; --good:#3FC495; --good-soft:#123329; --warn:#F2B04A; --warn-soft:#3A2A10;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
@@ -50,7 +50,7 @@ body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-u
 @media (max-width:600px){.wrap{padding:0 16px}}
 
 /* ---------- top bar ---------- */
-.topbar{position:sticky;top:0;padding-top:env(safe-area-inset-top);z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.topbar{padding-top:env(safe-area-inset-top);background:var(--bg)}
 .topbar .wrap{display:flex;align-items:center;gap:14px;height:64px}
 .brands{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:6px 12px;box-shadow:0 0 0 1px rgba(15,27,45,.06)}
 .brands img{display:block;height:30px;width:auto}
@@ -63,49 +63,35 @@ body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-u
 .iconbtn:hover{color:var(--ink)}
 @media (max-width:640px){.stamp{display:none}.brands img{height:24px}.brands img.vst{height:20px}}
 
-/* ---------- hero ---------- */
-.hero{position:relative;margin-top:24px;border-radius:28px;overflow:hidden;background:linear-gradient(125deg,#0E244A 0%,#163665 46%,#3B2150 78%,#B4172A 120%);color:#fff;box-shadow:var(--shadow)}
-.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 85% 10%,rgba(228,30,38,.35),transparent 60%),radial-gradient(500px 260px at 10% 110%,rgba(91,141,239,.35),transparent 60%);pointer-events:none}
-.hero-in{position:relative;display:grid;grid-template-columns:1.25fr .75fr;gap:24px;padding:40px 44px;align-items:center}
-@media (max-width:900px){.hero-in{grid-template-columns:1fr;padding:28px 22px}}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.75)}
-.swap{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);font-weight:700;letter-spacing:0;color:#fff}
-.hero h1{margin:14px 0 6px;font-size:clamp(26px,3.4vw,40px);line-height:1.12;font-weight:800;letter-spacing:-.02em}
-.hero h1 span{color:#FF8A8F}
-.hero p.lead{margin:0;color:rgba(255,255,255,.78);max-width:560px;font-size:15px}
-.eq{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 18px;margin-top:28px}
-.eq .term{display:flex;flex-direction:column}
-.eq .term small{font-size:12px;color:rgba(255,255,255,.7);font-weight:500}
-.eq .term b{font-size:clamp(32px,4.4vw,52px);font-weight:800;line-height:1;letter-spacing:-.03em}
-.eq .term.cancel b{color:#FF8A8F}
-.eq .term.net b{background:linear-gradient(90deg,#fff,#C9D8FF);-webkit-background-clip:text;background-clip:text;color:transparent}
-.eq .op{font-size:30px;font-weight:300;color:rgba(255,255,255,.55);padding-bottom:4px}
-.eq .net-box{padding:12px 18px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)}
-.hero-meta{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-size:12px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.85)}
-
-/* phone */
-.phone-wrap{display:flex;justify-content:center}
-.phone{position:relative;width:250px;height:510px;border-radius:46px;padding:11px;background:linear-gradient(145deg,#3a3f48,#14171c 40%,#2b3038);box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,255,255,.08);transform:rotate(-3deg)}
-.phone::after{content:"";position:absolute;right:-3px;top:130px;width:3px;height:70px;border-radius:2px;background:#2a2e35}
-.screen{position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;background:radial-gradient(120% 70% at 20% 0%,#2F5FC4 0%,transparent 60%),radial-gradient(120% 70% at 100% 100%,#E41E26 0%,transparent 55%),linear-gradient(180deg,#0E244A,#1c1530);color:#fff}
-.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:84px;height:24px;border-radius:14px;background:#000}
-.lock{text-align:center;padding-top:46px}
-.lock .d{font-size:12px;font-weight:600;opacity:.85}
-.lock .t{font-size:58px;font-weight:700;letter-spacing:-.03em;line-height:1.05}
-.notes{position:absolute;left:10px;right:10px;bottom:16px;display:flex;flex-direction:column;gap:7px}
-.note{background:rgba(255,255,255,.16);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;padding:9px 11px;font-size:11.5px;line-height:1.35;animation:pop .6s cubic-bezier(.2,.8,.2,1) both}
-.note:nth-child(2){animation-delay:.12s}.note:nth-child(3){animation-delay:.24s}
-.note .h{display:flex;align-items:center;gap:6px;font-size:10px;opacity:.75;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
-.note .h i{width:14px;height:14px;border-radius:4px;background:#E41E26;display:inline-grid;place-items:center;font-style:normal;font-size:9px;font-weight:800}
-.note b{font-weight:700}
-@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.note{animation:none}}
-@media (max-width:900px){.phone{transform:none;width:230px;height:470px}.lock .t{font-size:50px}}
-@media (max-width:600px){.phone{width:200px;height:400px;border-radius:38px}.screen{border-radius:30px}.lock{padding-top:38px}.lock .t{font-size:42px}.note{font-size:10.5px;padding:7px 9px}}
+/* ---------- sticky section nav ---------- */
+.secbar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.secbar .wrap{display:flex;align-items:center;gap:12px;height:52px}
+.secnav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}
+.secnav::-webkit-scrollbar{display:none}
+.secnav a{flex:none;text-decoration:none;color:var(--ink-2);font-size:13.5px;font-weight:600;padding:7px 12px;border-radius:9px;white-space:nowrap}
+.secnav a:hover{color:var(--ink);background:var(--surface)}
+.secnav a.on{color:var(--navy);background:var(--s-issue-soft)}
+:root[data-theme="dark"] .secnav a.on{color:#C9D8FF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .secnav a.on{color:#C9D8FF}}
+.acts{display:flex;gap:6px;flex:none}
+.acts .btn span{display:inline}
+@media (max-width:860px){.acts .btn span{display:none}.acts .btn{width:36px;padding:0;justify-content:center}}
+section[id]{scroll-margin-top:68px}
+/* ---------- page head ---------- */
+.pagehead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 24px;margin:22px 0 18px}
+.pagehead h1{margin:0;font-size:clamp(22px,2.6vw,30px);line-height:1.15;font-weight:800;letter-spacing:-.02em}
+.pagehead h1 span{color:var(--s-cancel)}
+.pagehead .meta{margin:6px 0 0;font-size:13px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.fresh{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px}
+.fresh::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.fresh.ok{background:var(--good-soft);color:var(--good)} .fresh.stale{background:var(--warn-soft);color:var(--warn)}
+.sec-title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin:34px 2px 12px}
+.sec-title h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+.sec-title p{margin:0;font-size:12.5px;color:var(--ink-3)}
+section:first-of-type .sec-title{margin-top:6px}
 
 /* ---------- filters ---------- */
-.filters{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:26px 0 16px}
+.filters{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
 .seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:13px;font-weight:500;padding:6px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
 .seg button.on{background:var(--navy);color:#fff}
@@ -193,11 +179,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
 .bars-h .val{color:var(--ink);font-weight:600}
 .bars-h .val small{color:var(--ink-3);font-weight:500;margin-left:4px}
 
-.summary{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;padding:16px 20px;margin-top:16px}
-.sum-txt{flex:1 1 420px;min-width:0}
-.sum-h{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600}
-.sum-txt p{margin:3px 0 0;font-size:13.5px;color:var(--ink)}
-.sum-act{display:flex;flex-wrap:wrap;gap:8px}
+
 .btn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:500;cursor:pointer}
 .btn:hover{border-color:var(--s-issue);color:var(--s-issue)}
 .btn.done{border-color:var(--good);color:var(--good)}
@@ -234,19 +216,14 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
 .btn.primary{justify-content:center;background:var(--navy);color:#fff;border-color:var(--navy);height:42px}
 .share{position:fixed;left:-10000px;top:0;width:720px;background:#fff;color:#0F1B2D;font-family:"Be Vietnam Pro",system-ui,sans-serif}
 @media print{
-  .topbar,.filters,.summary,.phone-wrap,.tools,.pager,#themeBtn,.share{display:none!important}
+  .secbar,.filters,.tools,.pager,#themeBtn,.share{display:none!important}
   body{background:#fff}
-  .hero{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .hero-in{grid-template-columns:1fr;padding:24px}
   .card{box-shadow:none;break-inside:avoid}
   .qc details{break-inside:avoid}
   .wrap{max-width:none;padding:0}
   .tbl-wrap{max-height:none!important;overflow:visible!important}
 }
-.sec-band{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:6px 16px;margin:34px 2px 2px;padding-top:18px;border-top:1px dashed var(--line)}
-.sec-k{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--s-cancel);font-weight:700}
-.sec-h{margin:2px 0 0;font-size:20px;font-weight:800;letter-spacing:-.01em}
-.sec-p{margin:0;font-size:12.5px;color:var(--ink-3)}
+
 .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
 .mini>div{background:var(--surface-2);border-radius:12px;padding:10px 12px}
 .mini .l{font-size:11.5px;color:var(--ink-3)} .mini .v{font-size:18px;font-weight:700}
@@ -260,6 +237,32 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
 .rec-tiles .l{font-size:11.5px;color:var(--ink-3)} .rec-tiles .v{font-size:20px;font-weight:700} .rec-tiles .s{font-size:11.5px;color:var(--ink-3)}
 .subh{font-size:12.5px;font-weight:700;margin:14px 0 6px}
 .muted{color:var(--ink-3);font-size:12px}
+.delta{display:inline-flex;align-items:center;gap:3px;font-weight:700}
+.delta svg{flex:none}
+.delta.good{color:var(--good)} .delta.bad{color:var(--s-cancel)} .delta.flat{color:var(--ink-3)}
+.stack{display:flex;height:16px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.stack i{display:block;height:100%}
+.stack i+i{box-shadow:inset 2px 0 0 var(--surface)}
+.mxrow{display:grid;grid-template-columns:minmax(110px,30%) 1fr 64px;gap:10px;align-items:center;padding:6px 0;font-size:12.5px}
+.mxrow .k{color:var(--ink);font-weight:600}
+.mxrow .val{text-align:right;font-weight:700}
+.capleg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 10px;font-size:12px;color:var(--ink-2)}
+.capleg span{display:inline-flex;align-items:center;gap:6px}
+.capleg i{width:10px;height:10px;border-radius:3px}
+@media (max-width:640px){
+  .hide-m{display:none!important}
+  table.rsp thead{display:none}
+  table.rsp,table.rsp tbody,table.rsp tr,table.rsp td{display:block;width:100%}
+  table.rsp tr{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;padding:10px 2px;border-bottom:1px solid var(--grid)}
+  table.rsp td{border:0;padding:2px 0;white-space:normal;text-align:left!important}
+  table.rsp td::before{content:attr(data-label);display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);font-weight:600}
+  table.rsp td.wide,#tblList td:nth-child(3){grid-column:1/-1}
+  table.rsp tfoot{display:block} table.rsp tfoot tr{display:grid}
+  tbody tr:hover td{background:none}
+  .panel-h{flex-wrap:wrap}
+  .panel-h .tools{width:100%}
+  .search{flex:1 1 100%} .search input{width:100%}
+}
 .foot{margin:28px 0 40px;font-size:12px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .nodata{margin:60px auto;max-width:560px;text-align:center;color:var(--ink-2)}
@@ -281,103 +284,107 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
   </div>
 </header>
 
+<div class="secbar">
+  <div class="wrap">
+    <nav class="secnav" id="secnav" aria-label="Các mục">
+      <a href="#tong-quan" class="on">Tổng quan</a>
+      <a href="#hieu-luc">Hiệu lực &amp; rủi ro</a>
+      <a href="#kenh-ban" data-vst>Kênh bán VST</a>
+      <a href="#doi-soat" data-vst>Đối soát</a>
+      <a href="#danh-sach">Danh sách đơn</a>
+    </nav>
+    <div class="acts">
+      <button class="btn" id="btnCopy" title="Sao chép đoạn tóm tắt để dán vào Zalo/email" aria-label="Sao chép tóm tắt"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Sao chép tóm tắt</span></button>
+      <button class="btn" id="btnPng" title="Tải ảnh báo cáo (PNG) để gửi Zalo" aria-label="Tải ảnh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span>Tải ảnh</span></button>
+      <button class="btn" id="btnPrint" title="In hoặc lưu PDF" aria-label="In / PDF"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>In / PDF</span></button>
+    </div>
+  </div>
+</div>
+
 <main class="wrap" id="app">
-  <section class="hero">
-    <div class="hero-in">
-      <div>
-        <div class="eyebrow"><span class="swap">1 ⇄ 1</span> Báo cáo hiệu quả hằng ngày</div>
-        <h1>Bảo hiểm Một đổi một<br>cho iPhone tại <span>Viettel Store</span></h1>
-        <p class="lead">Theo dõi số đơn ghi nhận, đơn hủy qua sửa đổi bổ sung (SĐBS) và số đơn thực tế của chương trình hợp tác giữa BH PVI và Viettel Store.</p>
-        <div class="eq num" id="heroEq"></div>
-        <div class="hero-meta" id="heroMeta"></div>
+  <div class="pagehead">
+    <div>
+      <h1>Bảo hiểm Một đổi một · iPhone tại <span>Viettel Store</span></h1>
+      <p class="meta" id="pageMeta"></p>
+    </div>
+    <div class="filters" aria-label="Bộ lọc kỳ báo cáo">
+      <div class="seg" id="presets">
+        <button data-p="7">7 ngày</button>
+        <button data-p="30">30 ngày</button>
+        <button data-p="month">Tháng này</button>
+        <button data-p="all" class="on">Toàn bộ</button>
       </div>
-      <div class="phone-wrap" aria-hidden="true">
-        <div class="phone"><div class="screen">
-          <div class="island"></div>
-          <div class="lock"><div class="d" id="phDate"></div><div class="t num" id="phTime"></div></div>
-          <div class="notes" id="phNotes"></div>
-        </div></div>
+      <label class="daterange"><input type="date" id="dFrom" aria-label="Từ ngày"><span>→</span><input type="date" id="dTo" aria-label="Đến ngày"></label>
+    </div>
+  </div>
+
+  <section id="tong-quan">
+    <div class="sec-title"><h2>Tổng quan</h2><p id="periodTxt"></p></div>
+    <div class="grid kpis" id="kpis"></div>
+    <div class="grid row2">
+      <div class="card panel">
+        <div class="panel-h">
+          <div><h2>Diễn biến theo ngày</h2><p id="dailySub">Đơn ghi nhận (trên trục) và đơn hủy (dưới trục)</p></div>
+          <div class="sp"></div>
+          <div class="legend"><span><i style="background:var(--s-issue)"></i>Ghi nhận</span><span><i style="background:var(--s-cancel)"></i>Hủy</span><span><i style="background:var(--weekend);box-shadow:inset 0 0 0 1px var(--line)"></i>Thứ 7 – CN</span></div>
+        </div>
+        <div class="chart" id="chDaily"></div>
       </div>
-    </div>
-  </section>
-
-  <section class="card summary" id="summary">
-    <div class="sum-txt"><div class="sum-h">Tóm tắt nhanh</div><p id="sumLine"></p></div>
-    <div class="sum-act">
-      <button class="btn" id="btnCopy" title="Sao chép đoạn tóm tắt để dán vào Zalo/email"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Sao chép tóm tắt</span></button>
-      <button class="btn" id="btnPng" title="Tải ảnh tóm tắt (PNG) để gửi Zalo"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span>Tải ảnh</span></button>
-      <button class="btn" id="btnPrint" title="In hoặc lưu PDF toàn bộ dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg><span>In / PDF</span></button>
-    </div>
-  </section>
-
-  <section class="filters" aria-label="Bộ lọc">
-    <span class="flabel">Kỳ báo cáo</span>
-    <div class="seg" id="presets">
-      <button data-p="7">7 ngày</button>
-      <button data-p="30">30 ngày</button>
-      <button data-p="month">Tháng này</button>
-      <button data-p="all" class="on">Toàn bộ</button>
-    </div>
-    <label class="daterange"><input type="date" id="dFrom" aria-label="Từ ngày"><span>→</span><input type="date" id="dTo" aria-label="Đến ngày"></label>
-  </section>
-
-  <section class="grid kpis" id="kpis"></section>
-
-  <section class="grid row2">
-    <div class="card panel">
-      <div class="panel-h">
-        <div><h2>Diễn biến theo ngày</h2><p id="dailySub">Đơn ghi nhận (trên trục) và đơn hủy (dưới trục)</p></div>
-        <div class="sp"></div>
-        <div class="legend"><span><i style="background:var(--s-issue)"></i>Ghi nhận</span><span><i style="background:var(--s-cancel)"></i>Hủy</span><span><i style="background:var(--weekend);box-shadow:inset 0 0 0 1px var(--line)"></i>Thứ 7 – CN</span></div>
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Đơn thực tế lũy kế</h2><p>Cộng dồn trong kỳ đã chọn</p></div></div>
+        <div class="chart" id="chCum"></div>
       </div>
-      <div class="chart" id="chDaily"></div>
-    </div>
-    <div class="card panel">
-      <div class="panel-h"><div><h2>Đơn thực tế lũy kế</h2><p>Cộng dồn trong kỳ đã chọn</p></div></div>
-      <div class="chart" id="chCum"></div>
-    </div>
-  </section>
-
-  <section class="grid row2b">
-    <div class="card panel">
-      <div class="panel-h"><div><h2>Giá trị thiết bị được bảo vệ</h2><p>Số đơn thực tế theo số tiền bảo hiểm (giá máy)</p></div></div>
-      <div class="bars-h" id="chValue"></div>
-    </div>
-    <div class="card panel">
-      <div class="panel-h"><div><h2>Đơn hủy</h2><p id="cancelSub">Danh sách SĐBS hủy trong kỳ</p></div></div>
-      <div id="cancelBox"></div>
-    </div>
-  </section>
-
-  <section class="grid row2b">
-    <div class="card panel">
-      <div class="panel-h"><div><h2>Hiệu lực &amp; rủi ro bồi thường</h2><p>Tính đến hôm nay, trên toàn bộ đơn thực tế</p></div></div>
-      <div class="risk" id="riskBox"></div>
-    </div>
-    <div class="card panel">
-      <div class="panel-h">
-        <div><h2>Lịch bắt đầu hiệu lực</h2><p>Số đơn thực tế bắt đầu hiệu lực theo tuần (từ ngày thứ 31 sau mua)</p></div>
-        <div class="sp"></div>
-        <div class="legend"><span><i style="background:var(--s-issue)"></i>Đã hiệu lực</span><span><i style="background:var(--s-issue);opacity:.4"></i>Sắp hiệu lực</span></div>
-      </div>
-      <div class="chart" id="chEff"></div>
-    </div>
-  </section>
-
-  <section id="vstSec" hidden>
-    <div class="sec-band">
-      <div><div class="sec-k">Từ báo cáo tháng của Viettel Store</div><h2 class="sec-h">Kênh bán Viettel Store</h2></div>
-      <p class="sec-p" id="vstNote"></p>
     </div>
     <div class="grid row2b">
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Theo khoảng giá máy</h2><p id="valSub">Số đơn thực tế theo số tiền bảo hiểm</p></div></div>
+        <div class="bars-h" id="chValue"></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Đơn hủy</h2><p id="cancelSub">Danh sách SĐBS hủy trong kỳ</p></div></div>
+        <div id="cancelBox"></div>
+      </div>
+    </div>
+    <div class="card panel" style="margin-top:16px">
+      <div class="panel-h"><div><h2>Tổng hợp theo tháng</h2><p>Toàn bộ dữ liệu · đơn hủy tính theo ngày SĐBS</p></div></div>
+      <div class="tbl-wrap"><table id="tblMonth" class="rsp"></table></div>
+    </div>
+  </section>
+
+  <section id="hieu-luc">
+    <div class="sec-title"><h2>Hiệu lực &amp; rủi ro bồi thường</h2><p>Tính đến hôm nay, trên toàn bộ đơn thực tế</p></div>
+    <div class="grid row2b" style="margin-top:0">
+      <div class="card panel">
+        <div class="panel-h"><div><h2>Tình trạng hiệu lực</h2><p>Đơn bắt đầu hiệu lực từ ngày thứ 31 sau khi mua</p></div></div>
+        <div class="risk" id="riskBox"></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-h">
+          <div><h2>Lịch bắt đầu hiệu lực</h2><p>Số đơn thực tế bắt đầu hiệu lực theo tuần</p></div>
+          <div class="sp"></div>
+          <div class="legend"><span><i style="background:var(--s-issue)"></i>Đã hiệu lực</span><span><i style="background:var(--s-issue);opacity:.4"></i>Sắp hiệu lực</span></div>
+        </div>
+        <div class="chart" id="chEff"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="kenh-ban" hidden>
+    <div class="sec-title"><h2>Kênh bán Viettel Store</h2><p id="vstNote"></p></div>
+    <div class="grid row2b" style="margin-top:0">
       <div class="card panel">
         <div class="panel-h"><div><h2>Theo tỉnh / thành</h2><p id="pvSub">Số hồ sơ thành công theo tỉnh của cửa hàng</p></div></div>
         <div class="bars-h" id="vstProv"></div>
       </div>
       <div class="card panel">
         <div class="panel-h"><div><h2>Top cửa hàng</h2><p id="stSub">Xếp theo số hồ sơ thành công</p></div></div>
-        <div class="tbl-wrap" style="max-height:420px;overflow:auto"><table id="vstStores"></table></div>
+        <div class="tbl-wrap" style="max-height:440px;overflow:auto"><table id="vstStores"></table></div>
       </div>
+    </div>
+    <div class="card panel" style="margin-top:16px">
+      <div class="panel-h"><div><h2>Dòng máy × dung lượng</h2><p id="mdSub">Số hồ sơ thành công theo dòng máy, chia theo dung lượng</p></div></div>
+      <div id="vstModel"></div>
+      <div id="vstSkuNote"></div>
     </div>
     <div class="grid row2b">
       <div class="card panel">
@@ -386,46 +393,32 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
       </div>
       <div class="card panel">
         <div class="panel-h"><div><h2>Top nhân viên bán</h2><p id="nvSub">Theo mã nhân viên tạo hồ sơ</p></div></div>
-        <div class="tbl-wrap" style="max-height:420px;overflow:auto"><table id="vstStaff"></table></div>
+        <div class="tbl-wrap" style="max-height:440px;overflow:auto"><table id="vstStaff"></table></div>
       </div>
-    </div>
-    <div class="grid row2b">
-      <div class="card panel">
-        <div class="panel-h"><div><h2>Theo dòng máy</h2><p id="mdSub">Số hồ sơ thành công theo dòng máy</p></div></div>
-        <div class="bars-h" id="vstModel"></div>
-      </div>
-      <div class="card panel">
-        <div class="panel-h"><div><h2>Theo dung lượng</h2><p id="capSub">Số hồ sơ thành công theo dung lượng máy</p></div></div>
-        <div class="bars-h" id="vstCap"></div>
-        <div id="vstSkuNote"></div>
-      </div>
-    </div>
-    <div class="card panel" style="margin-top:16px">
-      <div class="panel-h"><div><h2>Đối soát VST ↔ BH PVI</h2><p id="recSub">So số đơn theo ngày giữa báo cáo VST và dữ liệu cấp đơn của BH PVI</p></div></div>
-      <div id="vstRec"></div>
     </div>
   </section>
 
-  <section class="card panel" style="margin-top:16px">
-    <div class="panel-h"><div><h2>Tổng hợp theo tháng</h2><p>Toàn bộ dữ liệu · đơn hủy tính theo ngày SĐBS</p></div></div>
-    <div class="tbl-wrap"><table id="tblMonth"></table></div>
+  <section id="doi-soat" hidden>
+    <div class="sec-title"><h2>Đối soát VST ↔ BH PVI</h2><p id="recSub">So số đơn theo ngày giữa báo cáo VST và dữ liệu cấp đơn của BH PVI</p></div>
+    <div class="card panel"><div id="vstRec"></div></div>
   </section>
 
-  <section class="card panel" style="margin-top:16px">
-    <div class="panel-h">
-      <div><h2>Danh sách đơn</h2><p>Đơn gốc trong kỳ · tên khách hàng đã được ẩn</p></div>
-      <div class="sp"></div>
-      <div class="tools">
-        <div class="seg" id="stSeg">
-          <button data-s="all" class="on">Tất cả</button>
-          <button data-s="live">Còn hiệu lực</button>
-          <button data-s="cancel">Đã hủy</button>
+  <section id="danh-sach">
+    <div class="sec-title"><h2>Danh sách đơn</h2><p>Đơn gốc trong kỳ · tên khách hàng đã được ẩn</p></div>
+    <div class="card panel">
+      <div class="panel-h">
+        <div class="tools">
+          <div class="seg" id="stSeg">
+            <button data-s="all" class="on">Tất cả</button>
+            <button data-s="live">Còn hiệu lực</button>
+            <button data-s="cancel">Đã hủy</button>
+          </div>
+          <label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Tìm số đơn, số CT…" aria-label="Tìm kiếm"></label>
         </div>
-        <label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Tìm số đơn, số CT…" aria-label="Tìm kiếm"></label>
       </div>
+      <div class="tbl-wrap"><table id="tblList" class="rsp"></table></div>
+      <div class="pager" id="pager"></div>
     </div>
-    <div class="tbl-wrap"><table id="tblList"></table></div>
-    <div class="pager" id="pager"></div>
   </section>
 
   <footer class="foot">
@@ -541,43 +534,46 @@ const css=v=>getComputedStyle(root).getPropertyValue(v).trim();
 
 /* ============ render: header & hero ============ */
 function renderHero(){
-  const all=metrics(minDate,maxDate);
-  $('heroEq').innerHTML=`
-    <div class="term"><small>Đơn ghi nhận</small><b>${fmt(all.nG)}</b></div>
-    <div class="op">−</div>
-    <div class="term cancel"><small>Đơn đã hủy</small><b>${fmt(all.nH)}</b></div>
-    <div class="op">=</div>
-    <div class="term net net-box"><small>Đơn thực tế</small><b>${fmt(all.net)}</b></div>`;
-  const days=Math.round((toD(maxDate)-toD(minDate))/DAY)+1;
-  $('heroMeta').innerHTML=`<span class="chip">Từ ${ddmmyyyy(minDate)} đến ${ddmmyyyy(maxDate)} · ${days} ngày</span><span class="chip">Phí thực tế ${money(all.phiNet)} đ</span><span class="chip">Tỷ lệ hủy ${pct(all.nH/all.nG)}</span>`;
   const gen=D.generatedAt?new Date(D.generatedAt):new Date();
-  $('stamp').innerHTML=`Số liệu đến <b>${ddmmyyyy(maxDate)}</b><br>Cập nhật ${gen.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})}`;
-  // phone lock screen
-  const md=toD(maxDate);
-  $('phDate').textContent=md.toLocaleDateString('vi-VN',{weekday:'long',day:'numeric',month:'long'});
-  $('phTime').textContent=gen.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',hour12:false});
-  const lastG=G.filter(r=>r.ngay===maxDate).length;
-  const prev=iso(new Date(md.getTime()-DAY));const prevG=G.filter(r=>r.ngay===prev).length;
-  const wk=iso(new Date(md.getTime()-6*DAY));const wkH=cancels.filter(c=>c.ngay>=wk).length;
-  $('phNotes').innerHTML=`
-   <div class="note"><div class="h"><i>1⇄1</i>BH Một đổi một · ${ddmm(maxDate)}</div><b>+${fmt(lastG)} đơn mới</b> trong ngày dữ liệu mới nhất</div>
-   <div class="note"><div class="h"><i>1⇄1</i>Hôm trước · ${ddmm(prev)}</div><b>${fmt(prevG)} đơn</b> ghi nhận</div>
-   <div class="note"><div class="h"><i>1⇄1</i>7 ngày gần nhất</div><b>${fmt(wkH)} đơn hủy</b> · tổng thực tế <b>${fmt(all.net)}</b></div>`;
+  const genTxt=gen.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
+  $('stamp').innerHTML=`Số liệu đến <b>${ddmmyyyy(maxDate)}</b><br>Cập nhật ${genTxt}`;
+  // freshness: data for day D is normally loaded on D+1
+  const lag=Math.round((toD(today)-toD(maxDate))/DAY);
+  const fresh=lag<=1?`<span class="fresh ok">Số liệu đến ${ddmmyyyy(maxDate)}</span>`:`<span class="fresh stale">Chưa cập nhật ${lag-1} ngày · số liệu mới nhất ${ddmmyyyy(maxDate)}</span>`;
+  $('pageMeta').innerHTML=`${fresh}<span>Dữ liệu từ ${ddmmyyyy(minDate)} · cập nhật lúc ${genTxt}</span>`;
 }
 
 /* ============ KPIs ============ */
+const ARR={up:'<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.5 9 8H1z" fill="currentColor"/></svg>',down:'<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 8.5 1 2h8z" fill="currentColor"/></svg>'};
+function prevPeriod(){
+  const len=Math.round((toD(S.to)-toD(S.from))/DAY)+1;
+  const pt=iso(new Date(toD(S.from).getTime()-DAY)), pf=iso(new Date(toD(S.from).getTime()-len*DAY));
+  return pf>=minDate?{f:pf,t:pt,len}:null;
+}
+function delta(cur,prev,upIsGood,fmtV){
+  if(prev==null)return '';
+  if(prev===0&&cur===0)return '<span class="delta flat">Không đổi</span>';
+  if(prev===0)return `<span class="delta ${upIsGood?'good':'bad'}">${ARR.up} mới</span>`;
+  const r=(cur-prev)/prev, dir=r>0.0005?'up':r<-0.0005?'down':'flat';
+  const cls=dir==='flat'?'flat':((dir==='up')===upIsGood?'good':'bad');
+  return `<span class="delta ${cls}">${dir==='flat'?'':ARR[dir]}${dir==='flat'?'Không đổi':Math.abs(r*100).toLocaleString('vi-VN',{maximumFractionDigits:0})+'%'}</span> <span title="Kỳ trước">(${fmtV(prev)})</span>`;
+}
 function renderKpis(m){
+  const pp=prevPeriod(), pm=pp?metrics(pp.f,pp.t):null;
+  const lenTxt=pp?(pp.len===1?'hôm trước':`${pp.len} ngày trước đó`):'';
+  $('periodTxt').innerHTML=`Kỳ ${ddmmyyyy(S.from)} – ${ddmmyyyy(S.to)}`+(pp?` · so với ${lenTxt} (${ddmm(pp.f)}–${ddmm(pp.t)})`:'');
+  const D_=(cur,prev,good,f)=>pm?`<div class="sub">${delta(cur,prev,good,f||fmt)} so với kỳ trước</div>`:'';
   const rate=m.nG?m.nH/m.nG:NaN;
   const days=Math.max(1,Math.round((toD(S.to)-toD(S.from))/DAY)+1);
   const wait=m.live.filter(r=>status(r)[0]==='wait').length, act=m.live.filter(r=>status(r)[0]==='active').length;
   const rateBadge=!isFinite(rate)?'':rate<0.05?'<span class="badge good">Thấp</span>':rate<0.1?'<span class="badge warn">Theo dõi</span>':'<span class="badge bad">Cao</span>';
   const k=[
-    {c:'var(--s-issue)',l:'Đơn ghi nhận',v:fmt(m.nG),u:'đơn',s:`Bình quân <b>${(m.nG/days).toLocaleString('vi-VN',{maximumFractionDigits:1})}</b> đơn/ngày`},
-    {c:'var(--s-cancel)',l:'Đơn đã hủy (SĐBS)',v:fmt(m.nH),u:'đơn',s:`Tỷ lệ hủy <b>${pct(rate)}</b> ${rateBadge}`},
-    {c:'var(--navy)',l:'Đơn thực tế',v:fmt(m.net),u:'đơn',s:`<span class="badge info">${fmt(act)} đang hiệu lực</span> <span class="badge warn">${fmt(wait)} chờ hiệu lực</span>`},
-    {c:'var(--good)',l:'Phí BH thực tế',v:money(m.phiNet),u:'đ',s:`Ghi nhận <b>${money(m.phiG)}</b> · hoàn hủy <b>${money(m.phiH)}</b>`},
+    {c:'var(--s-issue)',l:'Đơn ghi nhận',v:fmt(m.nG),u:'đơn',s:`Bình quân <b>${(m.nG/days).toLocaleString('vi-VN',{maximumFractionDigits:1})}</b> đơn/ngày`,d:D_(m.nG,pm&&pm.nG,true)},
+    {c:'var(--s-cancel)',l:'Đơn đã hủy (SĐBS)',v:fmt(m.nH),u:'đơn',s:`Tỷ lệ hủy <b>${pct(rate)}</b> ${rateBadge}`,d:D_(m.nH,pm&&pm.nH,false)},
+    {c:'var(--navy)',l:'Đơn thực tế',v:fmt(m.net),u:'đơn',s:`<span class="badge info">${fmt(act)} đang hiệu lực</span> <span class="badge warn">${fmt(wait)} chờ hiệu lực</span>`,d:D_(m.net,pm&&pm.net,true)},
+    {c:'var(--good)',l:'Phí BH thực tế',v:money(m.phiNet),u:'đ',s:`Ghi nhận <b>${money(m.phiG)}</b> · hoàn hủy <b>${money(m.phiH)}</b>`,d:D_(m.phiNet,pm&&pm.phiNet,true,v=>money(v)+' đ')},
   ];
-  $('kpis').innerHTML=k.map(x=>`<div class="card kpi"><div class="lbl"><span class="dot" style="background:${x.c}"></span>${x.l}</div><div class="v num">${x.v}<small>${x.u}</small></div><div class="sub">${x.s}</div></div>`).join('')+
+  $('kpis').innerHTML=k.map(x=>`<div class="card kpi"><div class="lbl"><span class="dot" style="background:${x.c}"></span>${x.l}</div><div class="v num">${x.v}<small>${x.u}</small></div><div class="sub">${x.s}</div>${x.d}</div>`).join('')+
   `<div class="card kpi"><div class="lbl"><span class="dot" style="background:var(--ink-3)"></span>Tổng giá trị máy được bảo vệ</div><div class="v num">${money(m.stbh)}<small>đ</small></div><div class="sub">Số tiền BH của các đơn còn hiệu lực</div></div>`+
   `<div class="card kpi"><div class="lbl"><span class="dot" style="background:var(--ink-3)"></span>Giá máy bình quân</div><div class="v num">${m.live.length?money(m.stbh/m.live.length):'–'}<small>đ</small></div><div class="sub">Trên mỗi đơn thực tế</div></div>`;
 }
@@ -624,7 +620,7 @@ function renderDaily(m){
   }
   const ticks=[4,5,2,1].find(t=>Number.isInteger(maxG/t))||4;for(let i=0;i<=ticks;i++){const v=maxG*i/ticks,y=y0-v*unit;s+=`<line class="gl" x1="${ml}" x2="${W-mr}" y1="${y}" y2="${y}"/><text x="${ml-6}" y="${y+4}" text-anchor="end">${fmt(v)}</text>`;}
   if(maxH>0){s+=`<text x="${ml-6}" y="${y0+maxH*unit+4}" text-anchor="end">−${fmt(maxH)}</text>`;}
-  const every=Math.ceil(n/(W<500?6:12));
+  const every=Math.ceil(n/(W<500?6:12));let lastX=-1e9;
   B.out.forEach((b,i)=>{
     const cx=ml+bw*i+bw/2,x=cx-barW/2;
     if(b.g)s+=`<path d="${rr(x,y0-b.g*unit,barW,b.g*unit-1,4,true)}" fill="${css('--s-issue')}"/>`;
@@ -635,8 +631,13 @@ function renderDaily(m){
       // weekday row: every column when wide enough, otherwise Mondays only
       if(bw>=17||d===1)s+=`<text x="${cx}" y="${H-mb+16}" text-anchor="middle" style="font-size:${bw>=22?10.5:9.5}px;${d===1?'fill:var(--ink);font-weight:700':we?'fill:var(--ink-2);font-weight:600':''}">${WD[d]}</text>`;
       // date row: Mondays + first/last day
-      const nearMon=k=>{for(let j=Math.max(0,i-2);j<=Math.min(n-1,i+2);j++){if(j!==i&&wdOf(B.out[j].key)===1)return true;}return false;};
-      if(d===1||((i===0||i===n-1)&&!nearMon(i)))s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" style="${d===1?'fill:var(--ink-2);font-weight:600':''}">${b.label}</text>`;
+      const want=d===1||i===0||i===n-1;
+      if(want){
+        // keep date labels >= 40px apart; Mondays win over first/last day
+        const nextMon=(()=>{for(let j=i+1;j<n;j++){if(wdOf(B.out[j].key)===1)return ml+bw*j+bw/2;}return Infinity;})();
+        const ok=cx-lastX>=40&&(d===1||nextMon-cx>=40);
+        if(ok){s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" style="${d===1?'fill:var(--ink-2);font-weight:600':''}">${b.label}</text>`;lastX=cx;}
+      }
     }
     s+=`<rect data-i="${i}" x="${ml+bw*i}" y="${mt}" width="${bw}" height="${H-mt-mb}" fill="transparent"/>`;
   });
@@ -696,17 +697,17 @@ function renderCum(m){
 }
 
 /* ============ device value ============ */
+const BANDS=[[0,30e6,'Dưới 30 tr'],[30e6,40e6,'30 – 40 tr'],[40e6,45e6,'40 – 45 tr'],[45e6,50e6,'45 – 50 tr'],[50e6,60e6,'50 – 60 tr'],[60e6,1e15,'Từ 60 tr']];
 function renderValue(m){
-  const el=$('chValue');const by=new Map();
-  m.live.forEach(r=>{by.set(r.stbh,(by.get(r.stbh)||0)+1);});
-  const arr=[...by.entries()].sort((a,b)=>b[0]-a[0]);
-  if(!arr.length){el.innerHTML='<div class="empty">Không có đơn thực tế trong kỳ</div>';return;}
-  const mx=Math.max(...arr.map(a=>a[1])),tot=m.live.length;
-  el.innerHTML=arr.map(([v,c])=>`<div class="rowb" data-v="${v}" data-c="${c}"><div class="k num">${(v/1e6).toLocaleString('vi-VN',{maximumFractionDigits:2})} tr</div><div class="track"><div class="fill" style="width:${Math.max(2,c/mx*100)}%"></div></div><div class="val num">${c}<small>${pct(c/tot)}</small></div></div>`).join('');
-  el.querySelectorAll('.rowb').forEach(r=>{
-    r.addEventListener('mouseenter',e=>showTip(e,`<div class="t">Số tiền BH ${fmt(+r.dataset.v)} đ</div>${tr(css('--s-issue'),'Đơn thực tế',r.dataset.c)}${tr('','Tỷ trọng',pct(+r.dataset.c/tot))}`));
-    r.addEventListener('mousemove',moveTip);r.addEventListener('mouseleave',hideTip);
-  });
+  const el=$('chValue');
+  if(!m.live.length){el.innerHTML='<div class="empty">Không có đơn thực tế trong kỳ</div>';return;}
+  const arr=BANDS.map(([a,b,l])=>{const rs=m.live.filter(r=>r.stbh>=a&&r.stbh<b);return {l,c:rs.length,v:rs.reduce((s,r)=>s+r.stbh,0)};});
+  const mx=Math.max(1,...arr.map(a=>a.c)),tot=m.live.length;
+  $('valSub').textContent=`${fmt(tot)} đơn thực tế · giá máy bình quân ${money(m.stbh/tot)} đ`;
+  el.innerHTML=arr.map((a,i)=>`<div class="rowb" data-i="${i}"><div class="k">${a.l}</div><div class="track"><div class="fill" style="width:${a.c?Math.max(2,a.c/mx*100):0}%"></div></div><div class="val num">${a.c}<small>${pct(a.c/tot)}</small></div></div>`).join('');
+  el.querySelectorAll('.rowb').forEach(r=>{const a=arr[+r.dataset.i];
+    r.addEventListener('mouseenter',e=>showTip(e,`<div class="t">Giá máy ${a.l}</div>${tr(css('--s-issue'),'Đơn thực tế',fmt(a.c))}${tr('','Tỷ trọng',pct(a.c/tot))}${tr('','Tổng số tiền BH',money(a.v)+' đ')}`));
+    r.addEventListener('mousemove',moveTip);r.addEventListener('mouseleave',hideTip);});
 }
 
 /* ============ cancellations ============ */
@@ -716,8 +717,8 @@ function renderCancel(m){
   if(!m.h.length){box.innerHTML='<div class="empty">Không có đơn hủy trong kỳ 🎉</div>';return;}
   let html='';
   const rows=m.h.slice().sort((a,b)=>a.ngay<b.ngay?1:a.ngay>b.ngay?-1:(a.goc<b.goc?1:-1));
-  html+=`<div class="tbl-wrap" style="max-height:300px;overflow:auto"><table><thead><tr><th>Đơn gốc</th><th>Ngày PH</th><th>Ngày hủy</th><th class="r">Sau</th><th>KH</th></tr></thead><tbody>`+
-   rows.map(c=>`<tr><td class="mono">${esc(c.goc.split('/').pop())}</td><td class="num">${c.orig?ddmmyyyy(c.orig.ngay):'–'}</td><td class="num">${ddmmyyyy(c.ngay)}</td><td class="r num">${c.lag!=null?c.lag+' ngày':'–'}</td><td>${esc(c.kh)}</td></tr>`).join('')+'</tbody></table></div>';
+  html+=`<div class="tbl-wrap" style="max-height:300px;overflow:auto"><table><thead><tr><th>Đơn gốc</th><th class="hide-m">Ngày PH</th><th>Ngày hủy</th><th class="r">Sau</th><th>KH</th></tr></thead><tbody>`+
+   rows.map(c=>`<tr><td class="mono">${esc(c.goc.split('/').pop())}</td><td class="num hide-m">${c.orig?ddmmyyyy(c.orig.ngay):'–'}</td><td class="num">${ddmmyyyy(c.ngay)}</td><td class="r num">${c.lag!=null?c.lag+' ngày':'–'}</td><td>${esc(c.kh)}</td></tr>`).join('')+'</tbody></table></div>';
   box.innerHTML=html;
 }
 
@@ -735,7 +736,7 @@ function renderMonth(){
 }
 
 /* ============ list ============ */
-const PS=15;
+const PS=matchMedia('(max-width:640px)').matches?8:15;
 function renderList(){
   let rows=G.filter(r=>inR(r.ngay,S.from,S.to));
   if(S.st==='cancel')rows=rows.filter(r=>r.cancel);else if(S.st==='live')rows=rows.filter(r=>!r.cancel);
@@ -743,9 +744,10 @@ function renderList(){
   rows.sort((a,b)=>a.ngay<b.ngay?1:a.ngay>b.ngay?-1:(a.ct<b.ct?1:-1));
   const pages=Math.max(1,Math.ceil(rows.length/PS));if(S.page>=pages)S.page=pages-1;
   const slice=rows.slice(S.page*PS,S.page*PS+PS);
-  $('tblList').innerHTML=`<thead><tr><th>Số CT</th><th>Ngày CT</th><th>Số đơn BH</th><th>Khách hàng</th><th class="r">Số tiền BH (đ)</th><th class="r">Phí BH (đ)</th><th>Hiệu lực</th><th>Trạng thái</th></tr></thead><tbody>`+
-    (slice.length?slice.map(r=>{const [k,l]=status(r);return `<tr><td class="mono">${esc(r.ct)}</td><td class="num">${ddmmyyyy(r.ngay)}</td><td class="mono">${esc(r.don)}</td><td>${esc(r.kh)}</td><td class="r num">${fmt(r.stbh)}</td><td class="r num">${fmt(r.phi)}</td><td class="num">${ddmmyyyy(r.bd)} → ${ddmmyyyy(r.kt)}</td><td><span class="st ${k}">${l}</span>${r.cancel?` <span style="color:var(--ink-3);font-size:11.5px">(${ddmmyyyy(r.cancel.ngay)})</span>`:''}</td></tr>`;}).join(''):`<tr><td colspan="8" class="empty">Không có đơn phù hợp</td></tr>`)+'</tbody>';
+  $('tblList').innerHTML=`<thead><tr><th class="hide-m">Số CT</th><th>Ngày CT</th><th>Số đơn BH</th><th>Khách hàng</th><th class="r">Số tiền BH (đ)</th><th class="r hide-m">Phí BH (đ)</th><th class="hide-m">Hiệu lực</th><th>Trạng thái</th></tr></thead><tbody>`+
+    (slice.length?slice.map(r=>{const [k,l]=status(r);return `<tr><td class="mono hide-m">${esc(r.ct)}</td><td class="num">${ddmmyyyy(r.ngay)}</td><td class="mono">${esc(r.don)}</td><td>${esc(r.kh)}</td><td class="r num">${fmt(r.stbh)}</td><td class="r num hide-m">${fmt(r.phi)}</td><td class="num hide-m">${ddmmyyyy(r.bd)} → ${ddmmyyyy(r.kt)}</td><td><span class="st ${k}">${l}</span>${r.cancel?` <span style="color:var(--ink-3);font-size:11.5px">(${ddmmyyyy(r.cancel.ngay)})</span>`:''}</td></tr>`;}).join(''):`<tr><td colspan="8" class="empty">Không có đơn phù hợp</td></tr>`)+'</tbody>';
   $('pager').innerHTML=`<span>${fmt(rows.length)} đơn · trang ${S.page+1}/${pages}</span><button ${S.page?'':'disabled'} data-d="-1" aria-label="Trang trước">‹</button><button ${S.page<pages-1?'':'disabled'} data-d="1" aria-label="Trang sau">›</button>`;
+  labelize();
 }
 $('pager').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;S.page+=+b.dataset.d;renderList();});
 
@@ -816,10 +818,6 @@ function summaryText(){
     `Phí BH thực tế: ${fmt(all.phiNet)} đ.`,
     `Hiệu lực: ${fmt(R.act)} đang hiệu lực, ${fmt(R.wait)} chờ hiệu lực.`];
   return lines;
-}
-function renderSummary(){
-  const L=summaryText();
-  $('sumLine').innerHTML=L.slice(1).map(esc).join(' ');
 }
 function flash(btn,txt){const sp=btn.querySelector('span'),o=sp.textContent;sp.textContent=txt;btn.classList.add('done');setTimeout(()=>{sp.textContent=o;btn.classList.remove('done');},1800);}
 $('btnCopy').addEventListener('click',async()=>{
@@ -922,8 +920,10 @@ const vMin=VR.length?VR.reduce((a,r)=>r.ngay<a?r.ngay:a,VR[0].ngay):null, vMax=V
 const pvName=c=>(V&&V.provinces&&V.provinces[c])||c||'Khác';
 const stInfo=c=>(V&&V.stores&&V.stores[c])||{pv:'',ad:''};
 function renderVST(){
-  if(!VR.length){$('vstSec').hidden=true;return;}
-  $('vstSec').hidden=false;
+  const has=VR.length>0;
+  $('kenh-ban').hidden=!has;$('doi-soat').hidden=!has;
+  document.querySelectorAll('#secnav a[data-vst]').forEach(a=>a.hidden=!has);
+  if(!has)return;
   const f=S.from>vMin?S.from:vMin, t=S.to<vMax?S.to:vMax;
   $('vstNote').textContent=`Báo cáo VST có số liệu từ ${ddmmyyyy(vMin)} đến ${ddmmyyyy(vMax)}`+(f>t?' · kỳ đang chọn nằm ngoài khoảng này':` · đang xem ${ddmmyyyy(f)} – ${ddmmyyyy(t)}`)+' · không chứa thông tin khách hàng';
   const rows=VR.filter(r=>r.ngay>=f&&r.ngay<=t);
@@ -939,20 +939,22 @@ function renderVST(){
   const bySt=new Map();rows.filter(r=>r.tt==='L'||r.tt==='H').forEach(r=>{const o=bySt.get(r.ch)||{n:0,h:0};o.n++;if(r.tt==='H')o.h++;bySt.set(r.ch,o);});
   const st=[...bySt.entries()].sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0])).slice(0,20);
   $('stSub').textContent=`Top ${st.length} / ${fmt(bySt.size)} cửa hàng · xếp theo số hồ sơ thành công`;
-  $('vstStores').innerHTML=`<thead><tr><th>#</th><th>Cửa hàng</th><th>Tỉnh</th><th class="r">Hồ sơ</th><th class="r">Hủy</th></tr></thead><tbody>`+
-    st.map(([c,o],i)=>{const s=stInfo(c);return `<tr><td class="num">${i+1}</td><td style="white-space:normal"><b class="mono">${esc(c)}</b><div class="muted">${esc(s.ad)}</div></td><td>${esc(pvName(s.pv))}</td><td class="r num"><b>${o.n}</b></td><td class="r num">${o.h||''}</td></tr>`;}).join('')+'</tbody>';
+  $('vstStores').innerHTML=`<thead><tr><th>#</th><th>Cửa hàng</th><th class="hide-m">Tỉnh</th><th class="r">Hồ sơ</th><th class="r hide-m">Hủy</th></tr></thead><tbody>`+
+    st.map(([c,o],i)=>{const s=stInfo(c);return `<tr><td class="num">${i+1}</td><td style="white-space:normal"><b class="mono">${esc(c)}</b><div class="muted">${esc(s.ad)}</div></td><td class="hide-m">${esc(pvName(s.pv))}</td><td class="r num"><b>${o.n}</b></td><td class="r num hide-m">${o.h||''}</td></tr>`;}).join('')+'</tbody>';
   // ---- heatmap hour x weekday
   const H0=8,H1=22, WD=['T2','T3','T4','T5','T6','T7','CN'];
-  const grid=Array.from({length:7},()=>Array(H1-H0+1).fill(0));
-  ok.forEach(r=>{const d=(toD(r.ngay).getDay()+6)%7;const h=Math.min(H1,Math.max(H0,r.gio));grid[d][h-H0]++;});
+  const step=($('vstHeat').clientWidth||600)<520?2:1, nb=Math.ceil((H1-H0+1)/step);
+  const grid=Array.from({length:7},()=>Array(nb).fill(0));
+  ok.forEach(r=>{const d=(toD(r.ngay).getDay()+6)%7;const h=Math.min(H1,Math.max(H0,r.gio));grid[d][Math.floor((h-H0)/step)]++;});
   const hm=Math.max(1,...grid.flat()), base=css('--s-issue');
-  let hh=`<div class="heat" style="grid-template-columns:28px repeat(${H1-H0+1},1fr)"><div></div>`;
-  for(let h=H0;h<=H1;h++)hh+=`<div class="hd">${h===H0?'≤':h===H1?'≥':''}${h}h</div>`;
-  grid.forEach((row,d)=>{hh+=`<div class="rl">${WD[d]}</div>`;row.forEach((v,i)=>{const a=v?0.12+0.88*v/hm:0;hh+=`<div class="c" data-t="${WD[d]} · ${H0+i}h: ${v} hồ sơ" style="background:${v?`color-mix(in srgb,${base} ${Math.round(a*100)}%,transparent)`:'var(--surface-2)'};color:${a>0.55?'#fff':'var(--ink-2)'}">${v||''}</div>`;});});
+  const lab=i=>{const a=H0+i*step,b=Math.min(H1,a+step-1);return step===1?`${a}h`:`${a}–${b+1}h`;};
+  let hh=`<div class="heat" style="grid-template-columns:28px repeat(${nb},1fr)"><div></div>`;
+  for(let i=0;i<nb;i++){const a=H0+i*step;hh+=`<div class="hd">${i===0?'≤':''}${step===1?a+'h':a+'h'}</div>`;}
+  grid.forEach((row,d)=>{hh+=`<div class="rl">${WD[d]}</div>`;row.forEach((v,i)=>{const a=v?0.12+0.88*v/hm:0;hh+=`<div class="c" data-t="${WD[d]} · ${lab(i)}: ${v} hồ sơ" style="background:${v?`color-mix(in srgb,${base} ${Math.round(a*100)}%,transparent)`:'var(--surface-2)'};color:${a>0.55?'#fff':'var(--ink-2)'}">${v||''}</div>`;});});
   hh+='</div>';
   const byH=Array(24).fill(0);ok.forEach(r=>byH[r.gio]++);const pk=byH.indexOf(Math.max(...byH));
   const byD=grid.map(r=>r.reduce((a,b)=>a+b,0));const pd=byD.indexOf(Math.max(...byD));
-  hh+=`<p class="muted" style="margin:10px 0 0">Giờ cao điểm: <b>${pk}h–${pk+1}h</b> (${byH[pk]} hồ sơ) · Ngày bán nhiều nhất: <b>${['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ nhật'][pd]}</b> (${byD[pd]} hồ sơ) · Giờ ngoài 8h–22h được gộp vào cột đầu/cuối.</p>`;
+  hh+=`<p class="muted" style="margin:10px 0 0">Giờ cao điểm: <b>${pk}h–${pk+1}h</b> (${byH[pk]} hồ sơ) · Ngày bán nhiều nhất: <b>${['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ nhật'][pd]}</b> (${byD[pd]} hồ sơ) · Giờ ngoài 8h–22h được gộp vào cột đầu/cuối${step>1?'; mỗi cột là 2 giờ':''}.</p>`;
   $('vstHeat').innerHTML=hh;
   $('vstHeat').querySelectorAll('.c').forEach(c=>{c.addEventListener('mouseenter',e=>showTip(e,`<div class="t">${c.dataset.t}</div>`));c.addEventListener('mousemove',moveTip);c.addEventListener('mouseleave',hideTip);});
   // ---- staff
@@ -960,22 +962,30 @@ function renderVST(){
   const nv=[...byNv.entries()].sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0]));
   const n3=nv.filter(x=>x[1].n>=3).length;
   $('nvSub').textContent=`${fmt(nv.length)} nhân viên có bán · bình quân ${(ok.length/(nv.length||1)).toLocaleString('vi-VN',{maximumFractionDigits:1})} hồ sơ/người · ${n3} người từ 3 hồ sơ trở lên`;
-  $('vstStaff').innerHTML=`<thead><tr><th>#</th><th>Mã NV</th><th>Cửa hàng chính</th><th class="r">Hồ sơ</th><th class="r">Hủy</th></tr></thead><tbody>`+
-    nv.slice(0,20).map(([c,o],i)=>{const m=[...o.ch.entries()].sort((a,b)=>b[1]-a[1])[0][0];return `<tr><td class="num">${i+1}</td><td class="mono"><b>${esc(c)}</b></td><td><span class="mono">${esc(m)}</span> <span class="muted">${esc(pvName(stInfo(m).pv))}</span></td><td class="r num"><b>${o.n}</b></td><td class="r num">${o.h||''}</td></tr>`;}).join('')+'</tbody>';
+  $('vstStaff').innerHTML=`<thead><tr><th>#</th><th>Mã NV</th><th>Cửa hàng chính</th><th class="r">Hồ sơ</th><th class="r hide-m">Hủy</th></tr></thead><tbody>`+
+    nv.slice(0,20).map(([c,o],i)=>{const m=[...o.ch.entries()].sort((a,b)=>b[1]-a[1])[0][0];return `<tr><td class="num">${i+1}</td><td class="mono"><b>${esc(c)}</b></td><td><span class="mono">${esc(m)}</span> <span class="muted">${esc(pvName(stInfo(m).pv))}</span></td><td class="r num"><b>${o.n}</b></td><td class="r num hide-m">${o.h||''}</td></tr>`;}).join('')+'</tbody>';
   // ---- device model & capacity (needs BaoCao\VST\danh-muc-may.xlsx)
   const capOrder=c=>{const m=/([\d.]+)\s*(TB|GB)/i.exec(c||'');return m?parseFloat(m[1])*(m[2].toUpperCase()==='TB'?1024:1):1e9;};
-  const barRows=(arr,tot,mxv,lab)=>arr.map(([k,c,dim])=>`<div class="rowb" title="${esc(k)}"><div class="k" style="${dim?'color:var(--ink-3)':''}">${lab?lab(k):esc(k)}</div><div class="track"><div class="fill" style="width:${Math.max(2,c/mxv*100)}%;${dim?'opacity:.4':''}"></div></div><div class="val num">${c}<small>${pct(c/tot)}</small></div></div>`).join('');
   const byM=new Map(),byC=new Map(),unk=new Map();
-  ok.forEach(r=>{const x=mdl(r.sku);if(x.m){byM.set(x.m,(byM.get(x.m)||0)+1);}else{unk.set(r.sku||'(trống)',(unk.get(r.sku||'(trống)')||0)+1);}
-    const c=x.c||'';byC.set(c,(byC.get(c)||0)+1);});
+  ok.forEach(r=>{const x=mdl(r.sku);const c=x.c||'';
+    if(x.m){const o=byM.get(x.m)||{n:0,c:new Map()};o.n++;o.c.set(c,(o.c.get(c)||0)+1);byM.set(x.m,o);}else{unk.set(r.sku||'(trống)',(unk.get(r.sku||'(trống)')||0)+1);}
+    byC.set(c,(byC.get(c)||0)+1);});
   const unkN=[...unk.values()].reduce((a,b)=>a+b,0);
-  const mArr=[...byM.entries()].sort((a,b)=>b[1]-a[1]).map(([k,c])=>[k,c,false]);if(unkN)mArr.push([`Chưa xác định (${unk.size} mã)`,unkN,true]);
-  const cArr=[...byC.entries()].filter(x=>x[0]).sort((a,b)=>capOrder(a[0])-capOrder(b[0])).map(([k,c])=>[k,c,false]);const cUnk=byC.get('')||0;if(cUnk)cArr.push(['Chưa xác định',cUnk,true]);
-  $('mdSub').textContent=byM.size?`${byM.size} dòng máy · ${fmt(ok.length)} hồ sơ`:'Chưa có tên dòng máy — điền file danh-muc-may.xlsx';
-  $('vstModel').innerHTML=mArr.length?barRows(mArr,ok.length||1,Math.max(1,...mArr.map(x=>x[1]))):'<div class="empty">Không có dữ liệu</div>';
-  $('vstCap').innerHTML=cArr.length?barRows(cArr,ok.length||1,Math.max(1,...cArr.map(x=>x[1]))):'<div class="empty">Không có dữ liệu</div>';
-  $('vstModel').querySelectorAll('.rowb .k').forEach(e=>e.style.textAlign='left');
-  $('vstModel').querySelectorAll('.rowb').forEach(e=>e.style.gridTemplateColumns='minmax(120px,40%) 1fr 70px');
+  const caps=[...byC.keys()].filter(Boolean).sort((a,b)=>capOrder(a)-capOrder(b));
+  const capCol=i=>{const n=caps.length;if(n<=1)return 'var(--s-issue)';const t=i/(n-1);   // sequential: light -> dark (single hue)
+    return t<=0.67?`color-mix(in srgb,var(--s-issue) ${Math.round(32+t/0.67*68)}%,var(--surface))`:`color-mix(in srgb,var(--s-issue) ${Math.round(100-(t-0.67)/0.33*45)}%,var(--ink))`;};
+  const cc=new Map(caps.map((c,i)=>[c,capCol(i)]));cc.set('','var(--grid)');
+
+  const mRows=[...byM.entries()].sort((a,b)=>b[1].n-a[1].n);
+  const mxn=Math.max(1,...mRows.map(x=>x[1].n),unkN);
+  $('mdSub').textContent=byM.size?`${byM.size} dòng máy · ${fmt(ok.length)} hồ sơ · thanh màu chia theo dung lượng`:'Chưa có tên dòng máy — điền file danh-muc-may.xlsx';
+  let mh=`<div class="capleg">${caps.map(c=>`<span><i style="background:${cc.get(c)}"></i>${esc(c)} <b class="num">${byC.get(c)}</b> <span class="muted">${pct(byC.get(c)/tot)}</span></span>`).join('')}${byC.get('')?`<span><i style="background:var(--grid);box-shadow:inset 0 0 0 1px var(--line)"></i>Chưa rõ dung lượng <b class="num">${byC.get('')}</b></span>`:''}</div>`;
+  mh+=mRows.map(([m,o])=>`<div class="mxrow"><div class="k">${esc(m)}</div><div style="width:${Math.max(3,o.n/mxn*100)}%"><div class="stack" data-m="${esc(m)}">${[...caps,''].filter(c=>o.c.get(c)).map(c=>`<i data-c="${esc(c)}" data-n="${o.c.get(c)}" style="width:${o.c.get(c)/o.n*100}%;background:${cc.get(c)}"></i>`).join('')}</div></div><div class="val num">${o.n} <small class="muted">${pct(o.n/tot)}</small></div></div>`).join('');
+  if(unkN)mh+=`<div class="mxrow"><div class="k" style="color:var(--ink-3)">Chưa xác định (${unk.size} mã)</div><div style="width:${Math.max(3,unkN/mxn*100)}%"><div class="stack"><i style="width:100%;background:var(--grid)"></i></div></div><div class="val num">${unkN} <small class="muted">${pct(unkN/tot)}</small></div></div>`;
+  $('vstModel').innerHTML=ok.length?mh:'<div class="empty">Không có dữ liệu</div>';
+  $('vstModel').querySelectorAll('.stack i[data-c]').forEach(seg=>{const m=seg.parentNode.dataset.m;
+    seg.addEventListener('mouseenter',e=>showTip(e,`<div class="t">${esc(m)} ${esc(seg.dataset.c||'')}</div>${tr(seg.style.background,'Hồ sơ',seg.dataset.n)}${tr('','Tỷ trọng trong dòng máy',pct(+seg.dataset.n/byM.get(m).n))}`));
+    seg.addEventListener('mousemove',moveTip);seg.addEventListener('mouseleave',hideTip);});
   if(unk.size){const top=[...unk.entries()].sort((a,b)=>b[1]-a[1]);
     $('vstSkuNote').innerHTML=`<div class="subh">Mã máy chưa có tên (${unk.size} mã · ${unkN} hồ sơ)</div><p class="muted" style="margin:0 0 6px">Điền tên dòng máy và dung lượng cho các mã này trong <b>BaoCao\\VST\\danh-muc-may.xlsx</b>, rồi chạy update.bat.</p><div class="tbl-wrap" style="max-height:200px;overflow:auto"><table><thead><tr><th>Mã thiết bị</th><th class="r">Giá máy</th><th class="r">Hồ sơ</th></tr></thead><tbody>${top.map(([k,c])=>`<tr><td class="mono">${esc(k)}</td><td class="r num">${mdl(k).g?fmt(mdl(k).g):'–'}</td><td class="r num">${c}</td></tr>`).join('')}</tbody></table></div>`;}
   else $('vstSkuNote').innerHTML='';
@@ -1005,14 +1015,32 @@ function renderVST(){
   $('vstRec').innerHTML=h;
 }
 
+/* ============ mobile: table rows become cards ============ */
+function labelize(){
+  document.querySelectorAll('#app table.rsp').forEach(t=>{
+    const hs=[...t.querySelectorAll('thead th')].map(th=>th.textContent.trim());
+    t.querySelectorAll('tbody tr, tfoot tr').forEach(tr=>{[...tr.children].forEach((td,i)=>{if(!td.hasAttribute('data-label'))td.setAttribute('data-label',hs[i]||'');if(td.colSpan>1)td.classList.add('wide');});});
+  });
+}
+/* ============ section nav: highlight current section ============ */
+(function(){
+  const links=[...document.querySelectorAll('#secnav a')];
+  const setOn=id=>links.forEach(a=>{const on=a.getAttribute('href')==='#'+id;a.classList.toggle('on',on);if(on&&a.scrollIntoView&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollTo({left:a.offsetLeft-16,behavior:'smooth'});}});
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>{const v=es.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);if(v.length)setOn(v[0].target.id);},{rootMargin:'-70px 0px -60% 0px'});
+    document.querySelectorAll('main section[id]').forEach(sec=>io.observe(sec));
+  }
+  links.forEach(a=>a.addEventListener('click',()=>setOn(a.getAttribute('href').slice(1))));
+})();
+
 /* ============ main ============ */
 function renderAll(){
   const m=metrics(S.from,S.to);
-  renderHero();renderSummary();renderKpis(m);renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderVST();renderMonth();renderList();
+  renderHero();renderKpis(m);renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderVST();renderMonth();renderList();labelize();
 }
 $('footSrc').textContent='Nguồn: '+(D.sourceFiles||[]).join(', ')+' · '+fmt(D.rows.length)+' dòng';
 renderAll();
-let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const m=metrics(S.from,S.to);renderDaily(m);renderCum(m);renderRisk();},120);});
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const m=metrics(S.from,S.to);renderDaily(m);renderCum(m);renderRisk();renderVST();labelize();},120);});
 })();
 </script>
 </body>

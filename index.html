@@ -100,6 +100,11 @@ section:first-of-type .sec-title{margin-top:6px}
 .daterange{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px 8px}
 .daterange input{border:0;background:transparent;color:var(--ink);font:inherit;font-size:13px;padding:4px 2px;color-scheme:light dark}
 .daterange span{color:var(--ink-3)}
+.monthsel{position:relative;display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 10px;height:38px;color:var(--ink-2)}
+.monthsel.on{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);color:var(--ink)}
+.monthsel select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:inherit;font:inherit;font-size:13px;font-weight:600;padding:0 18px 0 0;cursor:pointer;outline:none;color-scheme:light dark;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:right 5px center,right 1px center;background-size:4px 4px;background-repeat:no-repeat}
+.monthsel select:focus-visible{outline:2px solid var(--s-issue);outline-offset:4px;border-radius:4px}
 .flabel{font-size:12px;color:var(--ink-3);font-weight:500}
 .filters .sp{flex:1}
 
@@ -243,7 +248,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
 .stack{display:flex;height:16px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
 .stack i{display:block;height:100%}
 .stack i+i{box-shadow:inset 2px 0 0 var(--surface)}
-.mxrow{display:grid;grid-template-columns:minmax(110px,30%) 1fr 64px;gap:10px;align-items:center;padding:6px 0;font-size:12.5px}
+.mxrow{display:grid;grid-template-columns:minmax(110px,30%) 1fr 92px;gap:10px;align-items:center;padding:6px 0;font-size:12.5px}
 .mxrow .k{color:var(--ink);font-weight:600}
 .mxrow .val{text-align:right;font-weight:700}
 .capleg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 10px;font-size:12px;color:var(--ink-2)}
@@ -314,6 +319,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
         <button data-p="month">Tháng này</button>
         <button data-p="all" class="on">Toàn bộ</button>
       </div>
+      <label class="monthsel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><select id="mSel" aria-label="Chọn tháng"></select></label>
       <label class="daterange"><input type="date" id="dFrom" aria-label="Từ ngày"><span>→</span><input type="date" id="dTo" aria-label="Đến ngày"></label>
     </div>
   </div>
@@ -495,6 +501,21 @@ $('dFrom').value=S.from;$('dTo').value=S.to;
 $('dFrom').min=$('dTo').min=minDate;$('dFrom').max=$('dTo').max=maxDate;
 
 function setSeg(id,attr,val){document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset[attr]===val));}
+/* ---- month picker ---- */
+const monthRange=ym=>{const [y,m]=ym.split('-').map(Number);let f=iso(new Date(y,m-1,1)),t=iso(new Date(y,m,0));return {f:f<minDate?minDate:f,t:t>maxDate?maxDate:t,full:{f,t}};};
+(function(){const opts=[];let d=new Date(toD(maxDate).getFullYear(),toD(maxDate).getMonth(),1);const stop=new Date(toD(minDate).getFullYear(),toD(minDate).getMonth(),1);
+  while(d>=stop){const ym=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');opts.push(`<option value="${ym}">Tháng ${d.getMonth()+1}/${d.getFullYear()}</option>`);d=new Date(d.getFullYear(),d.getMonth()-1,1);}
+  $('mSel').innerHTML='<option value="">Chọn tháng</option>'+opts.join('');})();
+function syncMonth(){ // highlight the month picker when the period is exactly one calendar month
+  let ym='';const a=S.from.slice(0,7);
+  if(a===S.to.slice(0,7)){const r=monthRange(a);if(r.f===S.from&&r.t===S.to)ym=a;}
+  S.month=ym;$('mSel').value=ym;$('mSel').parentNode.classList.toggle('on',!!ym);
+}
+$('mSel').addEventListener('change',e=>{
+  const ym=e.target.value;if(!ym)return;const r=monthRange(ym);
+  S.from=r.f;S.to=r.t;$('dFrom').value=S.from;$('dTo').value=S.to;
+  const cur=maxDate.slice(0,7);setSeg('presets','p',ym===cur?'month':'');syncMonth();S.page=0;renderAll();
+});
 $('presets').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;const p=b.dataset.p;
   const end=toD(maxDate);
@@ -502,11 +523,11 @@ $('presets').addEventListener('click',e=>{
   else if(p==='month'){S.from=iso(new Date(end.getFullYear(),end.getMonth(),1));}
   else {S.from=iso(new Date(end.getTime()-(Number(p)-1)*DAY));}
   if(S.from<minDate)S.from=minDate;S.to=maxDate;
-  $('dFrom').value=S.from;$('dTo').value=S.to;setSeg('presets','p',p);S.page=0;renderAll();
+  $('dFrom').value=S.from;$('dTo').value=S.to;setSeg('presets','p',p);syncMonth();S.page=0;renderAll();
 });
 ['dFrom','dTo'].forEach(id=>$(id).addEventListener('change',()=>{
   S.from=$('dFrom').value||minDate;S.to=$('dTo').value||maxDate;if(S.from>S.to){const t=S.from;S.from=S.to;S.to=t;}
-  setSeg('presets','p','');S.page=0;renderAll();
+  setSeg('presets','p','');syncMonth();S.page=0;renderAll();
 }));
 $('stSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.st=b.dataset.s;setSeg('stSeg','s',S.st);S.page=0;renderList();});
 $('q').addEventListener('input',e=>{S.q=e.target.value.trim().toLowerCase();S.page=0;renderList();});
@@ -546,6 +567,12 @@ function renderHero(){
 /* ============ KPIs ============ */
 const ARR={up:'<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.5 9 8H1z" fill="currentColor"/></svg>',down:'<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 8.5 1 2h8z" fill="currentColor"/></svg>'};
 function prevPeriod(){
+  if(S.month){ // month mode: same day-span of the previous month (e.g. 01–03/11 vs 01–03/10; full Oct vs full Sep)
+    const [y,m]=S.month.split('-').map(Number);const pf=iso(new Date(y,m-2,1)),pEnd=iso(new Date(y,m-1,0));
+    const span=Math.round((toD(S.to)-toD(S.from))/DAY);let pt=iso(new Date(toD(pf).getTime()+span*DAY));if(pt>pEnd)pt=pEnd;
+    const full=S.to===iso(new Date(y,m,0));if(full)pt=pEnd;
+    return pf>=minDate?{f:pf,t:pt,len:Math.round((toD(pt)-toD(pf))/DAY)+1,month:`tháng ${m===1?12:m-1}/${m===1?y-1:y}`,full}:null;
+  }
   const len=Math.round((toD(S.to)-toD(S.from))/DAY)+1;
   const pt=iso(new Date(toD(S.from).getTime()-DAY)), pf=iso(new Date(toD(S.from).getTime()-len*DAY));
   return pf>=minDate?{f:pf,t:pt,len}:null;
@@ -560,7 +587,7 @@ function delta(cur,prev,upIsGood,fmtV){
 }
 function renderKpis(m){
   const pp=prevPeriod(), pm=pp?metrics(pp.f,pp.t):null;
-  const lenTxt=pp?(pp.len===1?'hôm trước':`${pp.len} ngày trước đó`):'';
+  const lenTxt=pp?(pp.month?(pp.full?pp.month:`cùng kỳ ${pp.month}`):pp.len===1?'hôm trước':`${pp.len} ngày trước đó`):'';
   $('periodTxt').innerHTML=`Kỳ ${ddmmyyyy(S.from)} – ${ddmmyyyy(S.to)}`+(pp?` · so với ${lenTxt} (${ddmm(pp.f)}–${ddmm(pp.t)})`:'');
   const D_=(cur,prev,good,f)=>pm?`<div class="sub">${delta(cur,prev,good,f||fmt)} so với kỳ trước</div>`:'';
   const rate=m.nG?m.nH/m.nG:NaN;

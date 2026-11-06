@@ -319,6 +319,11 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
         <button data-p="month">Tháng này</button>
         <button data-p="all" class="on">Toàn bộ</button>
       </div>
+      <div class="seg" id="segSel" hidden aria-label="Dòng máy">
+        <button data-g="all" class="on">Tất cả</button>
+        <button data-g="std">iPhone thường</button>
+        <button data-g="duo">iPhone Duo</button>
+      </div>
       <label class="monthsel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><select id="mSel" aria-label="Chọn tháng"></select></label>
       <label class="daterange"><input type="date" id="dFrom" aria-label="Từ ngày"><span>→</span><input type="date" id="dTo" aria-label="Đến ngày"></label>
     </div>
@@ -327,6 +332,10 @@ tfoot td{font-weight:700;border-top:1px solid var(--line)}
   <section id="tong-quan">
     <div class="sec-title"><h2>Tổng quan</h2><p id="periodTxt"></p></div>
     <div class="grid kpis" id="kpis"></div>
+    <div class="card panel" id="prodCard" style="margin-top:16px" hidden>
+      <div class="panel-h"><div><h2>Theo dòng máy</h2><p>iPhone thường (phí 700.000 đ) và iPhone Duo (phí cố định theo dung lượng) trong kỳ</p></div></div>
+      <div class="tbl-wrap"><table id="tblProd" class="rsp"></table></div>
+    </div>
     <div class="grid row2">
       <div class="card panel">
         <div class="panel-h">
@@ -475,14 +484,25 @@ const money=n=>{const a=Math.abs(n);if(a>=1e9)return (n/1e9).toLocaleString('vi-
 const pct=x=>isFinite(x)?(x*100).toLocaleString('vi-VN',{maximumFractionDigits:1})+'%':'–';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-const G=D.rows.filter(r=>r.loai==='G');
+const G0=D.rows.filter(r=>r.loai==='G');
 const H=D.rows.filter(r=>r.loai==='H');
-const origBy=new Map(G.map(r=>[r.goc,r]));
+const origBy=new Map(G0.map(r=>[r.goc,r]));
 const cancelBy=new Map();
 H.slice().sort((a,b)=>a.ngay<b.ngay?-1:1).forEach(r=>{if(!cancelBy.has(r.goc))cancelBy.set(r.goc,r);});
-const cancels=[...cancelBy.values()]; // one cancel per base policy
-cancels.forEach(c=>{c.orig=origBy.get(c.goc)||null;c.lag=c.orig?Math.round((toD(c.ngay)-toD(c.orig.ngay))/DAY):null;c.phiHuy=c.orig?c.orig.phi:c.phi;});
-G.forEach(g=>{g.cancel=cancelBy.get(g.goc)||null;});
+const cancels0=[...cancelBy.values()]; // one cancel per base policy
+cancels0.forEach(c=>{c.orig=origBy.get(c.goc)||null;c.lag=c.orig?Math.round((toD(c.ngay)-toD(c.orig.ngay))/DAY):null;c.phiHuy=c.orig?c.orig.phi:c.phi;});
+G0.forEach(g=>{g.cancel=cancelBy.get(g.goc)||null;});
+/* product line: same Ma SP 020413; iPhone Duo is identified by its fixed fee (700.000 d = regular iPhone) */
+const DUO_FEE={2200000:'256GB',2420000:'512GB',2860000:'1TB',3410000:'2TB'};
+const duoVerByPrice=v=>v<65e6?'256GB':v<71.5e6?'512GB':v<85e6?'1TB':'2TB';
+G0.forEach(g=>{g.duo=(g.phi||0)>700000;g.ver=g.duo?(DUO_FEE[Math.round(g.phi)]||duoVerByPrice(g.stbh)):'';});
+cancels0.forEach(c=>{c.duo=c.orig?c.orig.duo:(c.phi||0)>700000;});
+const HAS_DUO=G0.some(g=>g.duo);
+let G=G0, cancels=cancels0;
+function applySeg(){
+  G=S.seg==='all'?G0:G0.filter(r=>(S.seg==='duo')===r.duo);
+  cancels=S.seg==='all'?cancels0:cancels0.filter(c=>(S.seg==='duo')===c.duo);
+}
 const allDates=D.rows.map(r=>r.ngay).filter(Boolean).sort();
 const minDate=allDates[0], maxDate=allDates[allDates.length-1];
 const today=iso(new Date());
@@ -495,7 +515,7 @@ function status(g){
 }
 
 /* ============ state ============ */
-const S={from:minDate,to:maxDate,st:'all',q:'',page:0};
+const S={from:minDate,to:maxDate,st:'all',q:'',page:0,seg:'all'};
 const $=id=>document.getElementById(id);
 $('dFrom').value=S.from;$('dTo').value=S.to;
 $('dFrom').min=$('dTo').min=minDate;$('dFrom').max=$('dTo').max=maxDate;
@@ -529,6 +549,8 @@ $('presets').addEventListener('click',e=>{
   S.from=$('dFrom').value||minDate;S.to=$('dTo').value||maxDate;if(S.from>S.to){const t=S.from;S.from=S.to;S.to=t;}
   setSeg('presets','p','');syncMonth();S.page=0;renderAll();
 }));
+if(HAS_DUO){$('segSel').hidden=false;}
+$('segSel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.seg=b.dataset.g;setSeg('segSel','g',S.seg);applySeg();S.page=0;renderAll();});
 $('stSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.st=b.dataset.s;setSeg('stSeg','s',S.st);S.page=0;renderList();});
 $('q').addEventListener('input',e=>{S.q=e.target.value.trim().toLowerCase();S.page=0;renderList();});
 
@@ -724,13 +746,14 @@ function renderCum(m){
 }
 
 /* ============ device value ============ */
-const BANDS=[[0,30e6,'Dưới 30 tr'],[30e6,40e6,'30 – 40 tr'],[40e6,45e6,'40 – 45 tr'],[45e6,50e6,'45 – 50 tr'],[50e6,60e6,'50 – 60 tr'],[60e6,1e15,'Từ 60 tr']];
+const BANDS=[[0,30e6,'Dưới 30 tr'],[30e6,40e6,'30 – 40 tr'],[40e6,45e6,'40 – 45 tr'],[45e6,50e6,'45 – 50 tr'],[50e6,60e6,'50 – 60 tr'],[60e6,65e6,'60 – 65 tr'],[65e6,80e6,'65 – 80 tr'],[80e6,1e15,'Từ 80 tr']];
 function renderValue(m){
   const el=$('chValue');
   if(!m.live.length){el.innerHTML='<div class="empty">Không có đơn thực tế trong kỳ</div>';return;}
   const arr=BANDS.map(([a,b,l])=>{const rs=m.live.filter(r=>r.stbh>=a&&r.stbh<b);return {l,c:rs.length,v:rs.reduce((s,r)=>s+r.stbh,0)};});
   const mx=Math.max(1,...arr.map(a=>a.c)),tot=m.live.length;
   $('valSub').textContent=`${fmt(tot)} đơn thực tế · giá máy bình quân ${money(m.stbh/tot)} đ`;
+  while(arr.length>6&&arr[arr.length-1].c===0)arr.pop();   // hide empty top bands (Duo) until used
   el.innerHTML=arr.map((a,i)=>`<div class="rowb" data-i="${i}"><div class="k">${a.l}</div><div class="track"><div class="fill" style="width:${a.c?Math.max(2,a.c/mx*100):0}%"></div></div><div class="val num">${a.c}<small>${pct(a.c/tot)}</small></div></div>`).join('');
   el.querySelectorAll('.rowb').forEach(r=>{const a=arr[+r.dataset.i];
     r.addEventListener('mouseenter',e=>showTip(e,`<div class="t">Giá máy ${a.l}</div>${tr(css('--s-issue'),'Đơn thực tế',fmt(a.c))}${tr('','Tỷ trọng',pct(a.c/tot))}${tr('','Tổng số tiền BH',money(a.v)+' đ')}`));
@@ -752,14 +775,15 @@ function renderCancel(m){
 /* ============ monthly ============ */
 function renderMonth(){
   const months=new Map();
-  const get=k=>{if(!months.has(k))months.set(k,{g:0,h:0,pg:0,ph:0});return months.get(k);};
-  G.forEach(r=>{const o=get(r.ngay.slice(0,7));o.g++;o.pg+=r.phi;});
-  cancels.forEach(c=>{const o=get(cancelDate(c).slice(0,7));o.h++;o.ph+=c.phiHuy;});
-  const ks=[...months.keys()].sort().reverse();let T={g:0,h:0,pg:0,ph:0};
-  const body=ks.map(k=>{const o=months.get(k);T.g+=o.g;T.h+=o.h;T.pg+=o.pg;T.ph+=o.ph;const [y,mm]=k.split('-');
-    return `<tr><td>Tháng ${+mm}/${y}</td><td class="r num">${fmt(o.g)}</td><td class="r num">${fmt(o.h)}</td><td class="r num"><b>${fmt(o.g-o.h)}</b></td><td class="r num">${pct(o.h/o.g)}</td><td class="r num">${fmt(o.pg)}</td><td class="r num">${fmt(o.ph)}</td><td class="r num"><b>${fmt(o.pg-o.ph)}</b></td></tr>`;}).join('');
-  $('tblMonth').innerHTML=`<thead><tr><th>Tháng</th><th class="r">Đơn ghi nhận</th><th class="r">Đơn hủy</th><th class="r">Đơn thực tế</th><th class="r">Tỷ lệ hủy</th><th class="r">Phí ghi nhận (đ)</th><th class="r">Phí hoàn hủy (đ)</th><th class="r">Phí thực tế (đ)</th></tr></thead><tbody>${body}</tbody>`+
-    (ks.length>1?`<tfoot><tr><td>Tổng</td><td class="r num">${fmt(T.g)}</td><td class="r num">${fmt(T.h)}</td><td class="r num">${fmt(T.g-T.h)}</td><td class="r num">${pct(T.h/T.g)}</td><td class="r num">${fmt(T.pg)}</td><td class="r num">${fmt(T.ph)}</td><td class="r num">${fmt(T.pg-T.ph)}</td></tr></tfoot>`:'');
+  const get=k=>{if(!months.has(k))months.set(k,{g:0,h:0,pg:0,ph:0,dg:0,dh:0});return months.get(k);};
+  const dCol=HAS_DUO&&S.seg==='all';
+  G.forEach(r=>{const o=get(r.ngay.slice(0,7));o.g++;o.pg+=r.phi;if(r.duo)o.dg++;});
+  cancels.forEach(c=>{const o=get(cancelDate(c).slice(0,7));o.h++;o.ph+=c.phiHuy;if(c.duo)o.dh++;});
+  const ks=[...months.keys()].sort().reverse();let T={g:0,h:0,pg:0,ph:0,dg:0,dh:0};
+  const body=ks.map(k=>{const o=months.get(k);T.g+=o.g;T.h+=o.h;T.pg+=o.pg;T.ph+=o.ph;T.dg+=o.dg;T.dh+=o.dh;const [y,mm]=k.split('-');
+    return `<tr><td>Tháng ${+mm}/${y}</td><td class="r num">${fmt(o.g)}</td><td class="r num">${fmt(o.h)}</td><td class="r num"><b>${fmt(o.g-o.h)}</b></td>${dCol?`<td class="r num">${o.dg||o.dh?fmt(o.dg-o.dh):'–'}</td>`:''}<td class="r num">${pct(o.h/o.g)}</td><td class="r num">${fmt(o.pg)}</td><td class="r num">${fmt(o.ph)}</td><td class="r num"><b>${fmt(o.pg-o.ph)}</b></td></tr>`;}).join('');
+  $('tblMonth').innerHTML=`<thead><tr><th>Tháng</th><th class="r">Đơn ghi nhận</th><th class="r">Đơn hủy</th><th class="r">Đơn thực tế</th>${dCol?'<th class="r">Trong đó Duo</th>':''}<th class="r">Tỷ lệ hủy</th><th class="r">Phí ghi nhận (đ)</th><th class="r">Phí hoàn hủy (đ)</th><th class="r">Phí thực tế (đ)</th></tr></thead><tbody>${body}</tbody>`+
+    (ks.length>1?`<tfoot><tr><td>Tổng</td><td class="r num">${fmt(T.g)}</td><td class="r num">${fmt(T.h)}</td><td class="r num">${fmt(T.g-T.h)}</td>${dCol?`<td class="r num">${fmt(T.dg-T.dh)}</td>`:''}<td class="r num">${pct(T.h/T.g)}</td><td class="r num">${fmt(T.pg)}</td><td class="r num">${fmt(T.ph)}</td><td class="r num">${fmt(T.pg-T.ph)}</td></tr></tfoot>`:'');
 }
 
 /* ============ list ============ */
@@ -772,7 +796,7 @@ function renderList(){
   const pages=Math.max(1,Math.ceil(rows.length/PS));if(S.page>=pages)S.page=pages-1;
   const slice=rows.slice(S.page*PS,S.page*PS+PS);
   $('tblList').innerHTML=`<thead><tr><th class="hide-m">Số CT</th><th>Ngày CT</th><th>Số đơn BH</th><th>Khách hàng</th><th class="r">Số tiền BH (đ)</th><th class="r hide-m">Phí BH (đ)</th><th class="hide-m">Hiệu lực</th><th>Trạng thái</th></tr></thead><tbody>`+
-    (slice.length?slice.map(r=>{const [k,l]=status(r);return `<tr><td class="mono hide-m">${esc(r.ct)}</td><td class="num">${ddmmyyyy(r.ngay)}</td><td class="mono">${esc(r.don)}</td><td>${esc(r.kh)}</td><td class="r num">${fmt(r.stbh)}</td><td class="r num hide-m">${fmt(r.phi)}</td><td class="num hide-m">${ddmmyyyy(r.bd)} → ${ddmmyyyy(r.kt)}</td><td><span class="st ${k}">${l}</span>${r.cancel?` <span style="color:var(--ink-3);font-size:11.5px">(${ddmmyyyy(r.cancel.ngay)})</span>`:''}</td></tr>`;}).join(''):`<tr><td colspan="8" class="empty">Không có đơn phù hợp</td></tr>`)+'</tbody>';
+    (slice.length?slice.map(r=>{const [k,l]=status(r);return `<tr><td class="mono hide-m">${esc(r.ct)}</td><td class="num">${ddmmyyyy(r.ngay)}</td><td class="mono">${esc(r.don)}${r.duo?` <span class="badge bad" title="iPhone Duo ${r.ver}">Duo ${r.ver}</span>`:''}</td><td>${esc(r.kh)}</td><td class="r num">${fmt(r.stbh)}</td><td class="r num hide-m">${fmt(r.phi)}</td><td class="num hide-m">${ddmmyyyy(r.bd)} → ${ddmmyyyy(r.kt)}</td><td><span class="st ${k}">${l}</span>${r.cancel?` <span style="color:var(--ink-3);font-size:11.5px">(${ddmmyyyy(r.cancel.ngay)})</span>`:''}</td></tr>`;}).join(''):`<tr><td colspan="8" class="empty">Không có đơn phù hợp</td></tr>`)+'</tbody>';
   $('pager').innerHTML=`<span>${fmt(rows.length)} đơn · trang ${S.page+1}/${pages}</span><button ${S.page?'':'disabled'} data-d="-1" aria-label="Trang trước">‹</button><button ${S.page<pages-1?'':'disabled'} data-d="1" aria-label="Trang sau">›</button>`;
   labelize();
 }
@@ -843,6 +867,7 @@ function summaryText(){
     `Ngày ${ddmmyyyy(maxDate)}: +${fmt(dG)} đơn ghi nhận, ${fmt(dH)} đơn hủy.`,
     `Lũy kế ${ddmmyyyy(minDate)}–${ddmmyyyy(maxDate)}: ${fmt(all.nG)} ghi nhận, ${fmt(all.nH)} hủy, ${fmt(all.net)} đơn thực tế (tỷ lệ hủy ${pct(all.nH/all.nG)}).`,
     `Phí BH thực tế: ${fmt(all.phiNet)} đ.`,
+    ...(HAS_DUO&&S.seg==='all'?(()=>{const dg=G0.filter(r=>r.duo).length,dh=cancels0.filter(c=>c.duo).length;return [`Trong đó iPhone Duo: ${fmt(dg)} ghi nhận, ${fmt(dh)} hủy, ${fmt(dg-dh)} thực tế.`];})():[]),
     `Hiệu lực: ${fmt(R.act)} đang hiệu lực, ${fmt(R.wait)} chờ hiệu lực.`];
   return lines;
 }
@@ -897,7 +922,7 @@ function buildShareCard(){
      <div style="font-size:13px;color:#4A5568;margin-top:2px">Trong ngày: <b style="color:#2F5FC4">+${fmt(dG)} đơn ghi nhận</b> · <b style="color:#E41E26">${fmt(dH)} đơn hủy</b></div>
      <div style="display:flex;gap:10px;margin-top:16px">${box('Đơn ghi nhận',fmt(all.nG),'#2F5FC4')}${box('Đơn đã hủy',fmt(all.nH),'#E41E26')}${box('Đơn thực tế',fmt(all.net),'#163665')}</div>
      <div style="display:flex;gap:10px;margin-top:10px">${box('Phí BH thực tế',money(all.phiNet)+' đ')}${box('Tỷ lệ hủy',pct(all.nH/all.nG))}${box('Đang / chờ hiệu lực',fmt(R.act)+' / '+fmt(R.wait))}</div>
-     <div style="display:flex;align-items:baseline;gap:10px;margin:20px 0 10px"><div style="font-size:15px;font-weight:800;color:#163665">Tháng ${mo+1}/${y}</div><div style="font-size:12.5px;color:#4A5568">${fmt(mG)} ghi nhận · ${fmt(mH)} hủy · <b style="color:#163665">${fmt(mG-mH)} thực tế</b></div></div>
+     <div style="display:flex;align-items:baseline;gap:10px;margin:20px 0 10px"><div style="font-size:15px;font-weight:800;color:#163665">Tháng ${mo+1}/${y}</div><div style="font-size:12.5px;color:#4A5568">${fmt(mG)} ghi nhận · ${fmt(mH)} hủy · <b style="color:#163665">${fmt(mG-mH)} thực tế</b>${(()=>{const m0=maxDate.slice(0,7);const dg=G0.filter(r=>r.duo&&r.ngay.startsWith(m0)).length,dh=cancels0.filter(c=>c.duo&&c.ngay.startsWith(m0)).length;return dg||dh?` · <span style="color:#E41E26">iPhone Duo: ${dg-dh} thực tế (${dg} ghi nhận, ${dh} hủy)</span>`:'';})()}</div></div>
      ${sv}
      <div style="font-size:11px;color:#7A8599;margin-top:8px">Lũy kế ${ddmmyyyy(minDate)} – ${ddmmyyyy(maxDate)} · Đơn có hậu tố /E01 SĐBS được tính là đơn hủy · Tên khách hàng đã được ẩn</div>
    </div>`;
@@ -941,13 +966,16 @@ $('btnPng').addEventListener('click',async()=>{
 
 /* ============ Viettel Store monthly report ============ */
 const V=window.VST_DATA;
-const VR=(V&&V.rows||[]).map(r=>({ngay:r[0],gio:r[1],ch:r[2],nv:r[3],tt:r[4],loi:r[5],sku:r[6]||''}));
+const VR0=(V&&V.rows||[]).map(r=>({ngay:r[0],gio:r[1],ch:r[2],nv:r[3],tt:r[4],loi:r[5],sku:r[6]||''}));
 const mdl=k=>(V&&V.models&&V.models[k])||{m:'',c:'',g:0};
-const vMin=VR.length?VR.reduce((a,r)=>r.ngay<a?r.ngay:a,VR[0].ngay):null, vMax=VR.length?VR.reduce((a,r)=>r.ngay>a?r.ngay:a,VR[0].ngay):null;
+let VR=VR0;
+const vMin=VR0.length?VR0.reduce((a,r)=>r.ngay<a?r.ngay:a,VR0[0].ngay):null, vMax=VR0.length?VR0.reduce((a,r)=>r.ngay>a?r.ngay:a,VR0[0].ngay):null;
+const vIsDuo=r=>/duo/i.test(mdl(r.sku).m||'');
 const pvName=c=>(V&&V.provinces&&V.provinces[c])||c||'Khác';
 const stInfo=c=>(V&&V.stores&&V.stores[c])||{pv:'',ad:''};
 function renderVST(){
-  const has=VR.length>0;
+  VR=S.seg==='all'?VR0:VR0.filter(r=>(S.seg==='duo')===vIsDuo(r));
+  const has=VR0.length>0;
   $('kenh-ban').hidden=!has;$('doi-soat').hidden=!has;
   document.querySelectorAll('#secnav a[data-vst]').forEach(a=>a.hidden=!has);
   if(!has)return;
@@ -955,6 +983,10 @@ function renderVST(){
   $('vstNote').textContent=`Báo cáo VST có số liệu từ ${ddmmyyyy(vMin)} đến ${ddmmyyyy(vMax)}`+(f>t?' · kỳ đang chọn nằm ngoài khoảng này':` · đang xem ${ddmmyyyy(f)} – ${ddmmyyyy(t)}`)+' · không chứa thông tin khách hàng';
   const rows=VR.filter(r=>r.ngay>=f&&r.ngay<=t);
   const ok=rows.filter(r=>!r.loi);              // ho so tao thanh cong (hieu luc + da huy)
+  if(!rows.length){const em=`<div class="empty">Không có hồ sơ VST ${S.seg==='duo'?'iPhone Duo ':S.seg==='std'?'iPhone thường ':''}trong kỳ đang chọn</div>`;
+    ['vstProv','vstModel','vstHeat'].forEach(id=>$(id).innerHTML=em);['vstStores','vstStaff'].forEach(id=>$(id).innerHTML=`<tbody><tr><td>${em}</td></tr></tbody>`);$('vstSkuNote').innerHTML='';
+    ['pvSub','stSub','nvSub','mdSub'].forEach(id=>$(id).textContent='Không có dữ liệu');}
+  else {
   // ---- provinces
   const byPv=new Map();ok.forEach(r=>{const p=stInfo(r.ch).pv||'?';byPv.set(p,(byPv.get(p)||0)+1);});
   const pv=[...byPv.entries()].sort((a,b)=>b[1]-a[1]);
@@ -1016,6 +1048,7 @@ function renderVST(){
   if(unk.size){const top=[...unk.entries()].sort((a,b)=>b[1]-a[1]);
     $('vstSkuNote').innerHTML=`<div class="subh">Mã máy chưa có tên (${unk.size} mã · ${unkN} hồ sơ)</div><p class="muted" style="margin:0 0 6px">Điền tên dòng máy và dung lượng cho các mã này trong <b>BaoCao\\VST\\danh-muc-may.xlsx</b>, rồi chạy update.bat.</p><div class="tbl-wrap" style="max-height:200px;overflow:auto"><table><thead><tr><th>Mã thiết bị</th><th class="r">Giá máy</th><th class="r">Hồ sơ</th></tr></thead><tbody>${top.map(([k,c])=>`<tr><td class="mono">${esc(k)}</td><td class="r num">${mdl(k).g?fmt(mdl(k).g):'–'}</td><td class="r num">${c}</td></tr>`).join('')}</tbody></table></div>`;}
   else $('vstSkuNote').innerHTML='';
+  }
   // ---- reconciliation with BH PVI (same date window covered by both sources)
   const rf=f>minDate?f:minDate, rt=t<maxDate?t:maxDate;
   if(rf>rt){$('vstRec').innerHTML='<div class="empty">Kỳ đang chọn không có dữ liệu chung giữa VST và BH PVI</div>';return;}
@@ -1060,10 +1093,28 @@ function labelize(){
   links.forEach(a=>a.addEventListener('click',()=>setOn(a.getAttribute('href').slice(1))));
 })();
 
+
+/* ============ product lines (regular vs Duo) ============ */
+function renderProducts(){
+  if(!HAS_DUO){$('prodCard').hidden=true;return;}
+  $('prodCard').hidden=false;
+  const f=S.from,t=S.to;
+  const row=(lab,gs,cs,cls)=>{const nG=gs.length,nH=cs.length,pG=gs.reduce((a,r)=>a+r.phi,0),pH=cs.reduce((a,c)=>a+c.phiHuy,0),live=gs.filter(r=>!r.cancel),stbh=live.reduce((a,r)=>a+r.stbh,0);
+    return `<tr class="${cls||''}"><td>${lab}</td><td class="r num">${fmt(nG)}</td><td class="r num">${fmt(nH)}</td><td class="r num"><b>${fmt(nG-nH)}</b></td><td class="r num">${pct(nG?nH/nG:NaN)}</td><td class="r num"><b>${fmt(pG-pH)}</b></td><td class="r num">${live.length?money(stbh/live.length):'–'}</td></tr>`;};
+  const gIn=G0.filter(r=>inR(r.ngay,f,t)), cIn=cancels0.filter(c=>inR(c.ngay,f,t));
+  const std=[gIn.filter(r=>!r.duo),cIn.filter(c=>!c.duo)], duo=[gIn.filter(r=>r.duo),cIn.filter(c=>c.duo)];
+  let h=`<thead><tr><th>Dòng máy</th><th class="r">Ghi nhận</th><th class="r">Hủy</th><th class="r">Thực tế</th><th class="r">Tỷ lệ hủy</th><th class="r">Phí thực tế (đ)</th><th class="r">Giá máy BQ</th></tr></thead><tbody>`;
+  h+=row('<span class="st exp" style="color:var(--s-issue)">iPhone thường</span>',...std);
+  h+=row('<span class="st exp" style="color:var(--s-cancel)">iPhone Duo</span>',...duo);
+  ['256GB','512GB','1TB','2TB'].forEach(v=>{const g=duo[0].filter(r=>r.ver===v),c=duo[1].filter(x=>x.orig&&x.orig.ver===v);if(g.length||c.length)h+=row(`<span class="muted" style="padding-left:16px">↳ Duo ${v} · phí ${fmt(+Object.keys(DUO_FEE).find(k=>DUO_FEE[k]===v))} đ</span>`,g,c,'sub');});
+  h+='</tbody><tfoot>'+row('Tổng',gIn,cIn)+'</tfoot>';
+  $('tblProd').innerHTML=h;
+}
+
 /* ============ main ============ */
 function renderAll(){
   const m=metrics(S.from,S.to);
-  renderHero();renderKpis(m);renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderVST();renderMonth();renderList();labelize();
+  renderHero();renderKpis(m);renderProducts();renderDaily(m);renderCum(m);renderValue(m);renderCancel(m);renderRisk();renderVST();renderMonth();renderList();labelize();
 }
 $('footSrc').textContent='Nguồn: '+(D.sourceFiles||[]).join(', ')+' · '+fmt(D.rows.length)+' dòng';
 renderAll();

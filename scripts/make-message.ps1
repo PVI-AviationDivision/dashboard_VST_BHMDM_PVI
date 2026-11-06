@@ -42,8 +42,12 @@ $tG = $GList.Count; $tH = $CList.Count
 $phiG = 0; foreach ($og in $GList) { $phiG += [double]$og.phi }
 $phiH = 0; foreach ($cx in $CList) { if ($origBy.ContainsKey($cx.goc)) { $phiH += [double]$origBy[$cx.goc].phi } else { $phiH += [double]$cx.phi } }
 $mm = $month.Split('-'); $monthLabel = $mm[1] + '/' + $mm[0]
+# iPhone Duo: cùng Mã SP, nhận diện bằng phí (700.000 đ = iPhone thường)
+$duoG = @($GList | Where-Object { [double]$_.phi -gt 700000 })
+$duoGocs = @{}; foreach ($og in $duoG) { $duoGocs[$og.goc] = 1 }
+$duoH = @($CList | Where-Object { $duoGocs.ContainsKey($_.goc) -or [double]$_.phi -gt 700000 })
 
-$msg = @(
+$msg = (@(
   "📊 BÁO CÁO BH MỘT ĐỔI MỘT – VIETTEL STORE",
   "Số liệu đến ngày $(DMY $last)",
   "",
@@ -51,9 +55,10 @@ $msg = @(
   "▪️ Tháng ${monthLabel}: $(N $mG) ghi nhận – $(N $mH) hủy – $(N ($mG - $mH)) đơn thực tế",
   "▪️ Lũy kế từ $(DMY $first): $(N $tG) ghi nhận – $(N $tH) hủy – $(N ($tG - $tH)) đơn thực tế (tỷ lệ hủy $(P $tH $tG)%)",
   "▪️ Phí BH thực tế lũy kế: $(N ($phiG - $phiH)) đ",
+  $(if ($duoG.Count -gt 0) { "▪️ Trong đó iPhone Duo: $(N $duoG.Count) ghi nhận – $(N $duoH.Count) hủy – $(N ($duoG.Count - $duoH.Count)) đơn thực tế" } else { $null }),
   "",
   "👉 Xem chi tiết: $Link"
-) -join "`r`n"
+) | Where-Object { $null -ne $_ }) -join "`r`n"
 
 Write-Host ""
 Write-Host "  ---------------- TIN NHẮN ----------------"
